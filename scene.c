@@ -238,6 +238,38 @@ int get_rtc_time(struct  timeval *dst, unsigned char *zone)
 	return 1;
 }
 
+//锁定上下移动
+static void lock_widget_up_down(struct node_widget *widget, unsigned char state)
+{
+	struct ITUWidget *t_widget = NULL;
+	char t_buf[20] = { 0 };
+	int t_num = 0;
+	if (strcmp(widget->name, "Background2") == 0){
+		t_widget = ituSceneFindWidget(&theScene, "Text3");
+		t_num = atoi(ituTextGetString((ITUText*)t_widget));
+	}
+	else if (strcmp(widget->name, "Background3") == 0){
+		t_widget = ituSceneFindWidget(&theScene, "Text42");
+		t_num = atoi(ituTextGetString((ITUText*)t_widget));
+	}
+	else if (strcmp(widget->name, "Background4") == 0){
+		t_widget = ituSceneFindWidget(&theScene, "Text43");
+		t_num = atoi(ituTextGetString((ITUText*)t_widget));
+	}
+	else if (strcmp(widget->name, "chushui_Background13") == 0){
+		t_widget = ituSceneFindWidget(&theScene, "Text38");
+		t_num = atoi(ituTextGetString((ITUText*)t_widget));
+	}
+	if (state == 0){
+		t_num = t_num + 1;
+	}
+	else{
+		t_num = t_num - 1;
+	}
+	sprintf(t_buf, "%d", t_num);
+	ituTextSetString(t_widget, t_buf);
+}
+
 //通用上下移动
 static void command_widget_up_down(struct node_widget *t_node_widget)
 {
@@ -582,25 +614,29 @@ static void yure_yureshezhiLayer_widget_confirm_cb(struct node_widget *widget, u
 }
 
 
-//yure_yureshezhiLayer_up_down_cb
-
 //预热时间上下移动
 static void yure_yureshezhiLayer_up_down_cb(struct node_widget *widget, unsigned char state)
 {
 	struct node_widget *t_node_widget = NULL;
 	struct ITUWidget *t_widget = NULL;
-	if (state == 0){
-		if (widget->up)
-			t_node_widget = widget->up;
+
+	if (widget->state == 1){ //如果已经锁定
+		lock_widget_up_down(widget, state);
 	}
 	else{
-		if (widget->down){
-			t_node_widget = widget->down;
+		if (state == 0){
+			if (widget->up)
+				t_node_widget = widget->up;
 		}
-	}
+		else{
+			if (widget->down){
+				t_node_widget = widget->down;
+			}
+		}
 
-	if (t_node_widget){
-		command_widget_up_down(t_node_widget);
+		if (t_node_widget){
+			command_widget_up_down(t_node_widget);
+		}
 	}
 }
 
