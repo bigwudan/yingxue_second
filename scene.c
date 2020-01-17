@@ -115,6 +115,10 @@ static const unsigned short crc16tab[256] = {
 //串口消息
 mqd_t uartQueue = -1;
 
+//子线程向主线程发送
+mqd_t childQueue = -1;
+
+
 //是否已经处理超时 0 未处理 1 已经处理
 unsigned char is_deal_over_time;
 
@@ -1491,10 +1495,14 @@ static void* UartFunc(void* arg)
 	//线程数据
 	struct main_uart_chg main_uart_chg_data;
 
+	//子线程到主线程的数据
+	struct child_to_pthread_mq_tag child_to_pthread_mq;
+
 	uint8_t rece_buf[10];
 	int len = 0;
 	int flag = 0;
 	int is_has = 0;
+	struct timespec tm;
 	//默认应答
 	uint8_t texBufArray[11] = { 0 };
 	uint8_t backBufArray[11] = { 0xEB, 0x1B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xD8, 0x2A };
@@ -1524,6 +1532,18 @@ static void* UartFunc(void* arg)
 				uart_data.count = 0;
 				//分析收到的数
 				process_frame(&main_uart_chg_data, uart_data.buf_data);
+				//发数据到主线程
+				child_to_pthread_mq.state_show = main_uart_chg_data.state_show;
+				child_to_pthread_mq.shezhi_temp = main_uart_chg_data.shezhi_temp;
+				child_to_pthread_mq.chushui_temp = main_uart_chg_data.chushui_temp;
+				child_to_pthread_mq.jinshui_temp = main_uart_chg_data.jinshui_temp;
+				child_to_pthread_mq.err_no = main_uart_chg_data.err_no;
+				child_to_pthread_mq.machine_state = main_uart_chg_data.machine_state;
+				child_to_pthread_mq.is_err = main_uart_chg_data.is_err;
+				memset(&tm, 0, sizeof(struct timespec));
+				tm.tv_sec = 1;
+				mq_timedsend(childQueue, &child_to_pthread_mq, sizeof(struct child_to_pthread_mq_tag), 1, &tm);
+				//接受数据
 				flag = mq_receive(uartQueue, &main_pthread_mq, sizeof(struct main_pthread_mq_tag), NULL);
 				//如果存在信息就发送消息
 				if (flag > 0){
@@ -1553,8 +1573,19 @@ static void run_time_task()
 	struct   timeval tm;
 	get_rtc_time(&tm, NULL);
 	tm_t = localtime(&tm.tv_sec);
+	struct child_to_pthread_mq_tag child_to_pthread_mq_tag;
+	int flag = 0;
+	//接受数据
+	flag = mq_receive(childQueue, &child_to_pthread_mq_tag, sizeof(struct child_to_pthread_mq_tag), NULL);
+	if (flag > 0){
+		yingxue_base.shezhi_temp = child_to_pthread_mq_tag.shezhi_temp;
+		yingxue_base.state_show = child_to_pthread_mq_tag.state_show;
+		yingxue_base.chushui_temp = child_to_pthread_mq_tag.chushui_temp;
+		yingxue_base.jinshui_temp = child_to_pthread_mq_tag.jinshui_temp;
+		yingxue_base.err_no = child_to_pthread_mq_tag.err_no;
+		yingxue_base.is_err = child_to_pthread_mq_tag.is_err;
+	}
 	if (yingxue_base.yure_mode == 0) return;
-
 	//单巡航模式
 	if (yingxue_base.yure_mode == 1){
 		if (tm.tv_sec > yingxue_base.yure_endtime.tv_sec){
@@ -2001,6 +2032,13 @@ int SceneRun(void)
 	mq_uart_attr.mq_maxmsg = 10;
 	mq_uart_attr.mq_msgsize = sizeof(struct main_pthread_mq_tag);
 	uartQueue = mq_open("scene", O_CREAT | O_NONBLOCK, 0644, &mq_uart_attr);
+
+	struct mq_attr mq_child_attr;
+	mq_child_attr.mq_flags = 0;
+	mq_child_attr.mq_maxmsg = 20;
+	
+	mq_child_attr.mq_msgsize = sizeof(struct child_to_pthread_mq_tag);
+	childQueue = mq_open("scene", O_CREAT | O_NONBLOCK, 0644, &mq_child_attr);
 
 	
 	//收发串口线程
