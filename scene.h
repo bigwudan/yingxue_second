@@ -143,6 +143,8 @@ struct yingxue_base_tag{
 	unsigned char shizhe_temp;//设置温度
 	unsigned char chushui_temp;//出水温度
 	unsigned char jinshui_temp;//进水温度
+	unsigned char huishui_temp; //回水温度 ,预热设置回差
+
 	unsigned char yure_mode; //预热模式 0无模式 1单巡航模式 2 全天候模式 3 预约模式
 	struct timeval yure_begtime; //预热开始时间
 	struct timeval yure_endtime; //预热结束时间
@@ -155,8 +157,13 @@ struct yingxue_base_tag{
 //获取当前时间
 int get_rtc_time(struct  timeval *dst, unsigned char *zone);
 
+//设置当前时间
+void set_rtc_time(unsigned char hour, unsigned char min);
+
 //计算下次的预约时间
 void calcNextYure(int *beg, int *end);
+
+
 
 #ifdef __cplusplus
 }

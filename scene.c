@@ -202,6 +202,26 @@ void calcNextYure(int *beg, int *end)
 
 	return;
 }
+//设置当前时间
+void set_rtc_time(unsigned char hour, unsigned char min)
+{
+	struct timeval tv;
+	struct tm *tm, mytime;
+	//设置时间
+	gettimeofday(&tv, NULL);
+	tm = localtime(&tv.tv_sec);
+	memcpy(&mytime, tm, sizeof(struct tm));
+	if (hour != -1){
+		mytime.tm_hour = hour; //小时
+	}
+	if (min != -1){
+		mytime.tm_min = min; //分
+	}
+	tv.tv_sec = mktime(&mytime);
+	tv.tv_usec = 0;
+	settimeofday(&tv, NULL);
+	return;
+}
 
 
 //得到当前时间戳
@@ -507,6 +527,82 @@ static void yure_settime_widget_confirm_cb(struct node_widget *widget, unsigned 
 	}
 }
 
+//预热设置温度和北京时间 上下移动
+static void yure_yureshezhiLayer_widget_confirm_cb(struct node_widget *widget, unsigned char state)
+{
+	ITUWidget *t_widget = NULL;
+	char *t_buf = NULL;
+	unsigned char num = 0;
+	if (strcmp(widget->name, "BackgroundButton60") == 0){
+		t_widget = ituSceneFindWidget(&theScene, "yureLayer");
+		ituLayerGoto((ITULayer *)t_widget);
+	}
+	//支持长按
+	else if (widget->type == 1){
+		if (widget->state == 0){
+			//锁定
+			widget->state = 1;
+			t_widget = ituSceneFindWidget(&theScene, widget->checked_back_name);
+			ituWidgetSetVisible(t_widget, true);
+		}
+		else{
+			//解除锁定Background2 Background3 Background4
+			//改变数据
+			//回水温度
+			if (strcmp(widget->name, "Background2") == 0){
+				t_widget = ituSceneFindWidget(&theScene, "Text3");
+				t_buf = ituTextGetString(t_widget);
+				num = atoi(t_buf);
+				//发送改变回水温度,也就是预热回温温度
+				yingxue_base.huishui_temp = num;
+			}
+			//北京时间小时
+			else if ((strcmp(widget->name, "Background3") == 0) || (strcmp(widget->name, "Background4") == 0)){
+				unsigned char hour = 0;
+				unsigned char min = 0;
+				struct timeval curr_time;
+				struct tm *t_tm;
+				get_rtc_time(&curr_time, NULL);
+				t_tm = localtime(&curr_time);
+				//hour
+				t_widget = ituSceneFindWidget(&theScene, "Text42");
+				t_buf = ituTextGetString(t_widget);
+				hour = atoi(t_buf);
+				//min
+				t_widget = ituSceneFindWidget(&theScene, "Text43");
+				t_buf = ituTextGetString(t_widget);
+				min = atoi(t_buf);
+				set_rtc_time(hour, min);
+			}
+			widget->state = 0;
+			t_widget = ituSceneFindWidget(&theScene, widget->checked_back_name);
+			ituWidgetSetVisible(t_widget, false);
+		}
+	}
+}
+
+
+//yure_yureshezhiLayer_up_down_cb
+
+//预热时间上下移动
+static void yure_yureshezhiLayer_up_down_cb(struct node_widget *widget, unsigned char state)
+{
+	struct node_widget *t_node_widget = NULL;
+	struct ITUWidget *t_widget = NULL;
+	if (state == 0){
+		if (widget->up)
+			t_node_widget = widget->up;
+	}
+	else{
+		if (widget->down){
+			t_node_widget = widget->down;
+		}
+	}
+
+	if (t_node_widget){
+		command_widget_up_down(t_node_widget);
+	}
+}
 
 //按键时间发生时的触发事件
 static void key_down_process()
@@ -789,14 +885,13 @@ static void node_widget_init()
 	yureshijian_widget_num_23.confirm_cb = yure_settime_widget_confirm_cb;
 	yureshijian_widget_num_23.updown_cb = yure_settime_up_down_cb;
 
-#if 0
 	//预约时间
 	yureshezhiLayer_0.up = NULL;
 	yureshezhiLayer_0.down = &yureshezhiLayer_1;
 	yureshezhiLayer_0.focus_back_name = "BackgroundButton85";
 	yureshezhiLayer_0.name = "BackgroundButton60";
 	yureshezhiLayer_0.confirm_cb = yure_yureshezhiLayer_widget_confirm_cb;
-	yureshezhiLayer_0.updown_cb = node_widget_up_down;
+	yureshezhiLayer_0.updown_cb = yure_yureshezhiLayer_up_down_cb;
 
 	yureshezhiLayer_1.up = &yureshezhiLayer_0;
 	yureshezhiLayer_1.down = &yureshezhiLayer_2;
@@ -804,7 +899,7 @@ static void node_widget_init()
 	yureshezhiLayer_1.checked_back_name = "Background45";
 	yureshezhiLayer_1.name = "Background2";
 	yureshezhiLayer_1.confirm_cb = yure_yureshezhiLayer_widget_confirm_cb;
-	yureshezhiLayer_1.updown_cb = node_widget_up_down;
+	yureshezhiLayer_1.updown_cb = yure_yureshezhiLayer_up_down_cb;
 	yureshezhiLayer_1.type = 1;
 
 	yureshezhiLayer_2.up = &yureshezhiLayer_1;
@@ -813,7 +908,7 @@ static void node_widget_init()
 	yureshezhiLayer_2.checked_back_name = "Background105";
 	yureshezhiLayer_2.name = "Background3";
 	yureshezhiLayer_2.confirm_cb = yure_yureshezhiLayer_widget_confirm_cb;
-	yureshezhiLayer_2.updown_cb = node_widget_up_down;
+	yureshezhiLayer_2.updown_cb = yure_yureshezhiLayer_up_down_cb;
 	yureshezhiLayer_2.type = 1;
 
 
@@ -823,8 +918,11 @@ static void node_widget_init()
 	yureshezhiLayer_3.checked_back_name = "Background107";
 	yureshezhiLayer_3.name = "Background4";
 	yureshezhiLayer_3.confirm_cb = yure_yureshezhiLayer_widget_confirm_cb;
-	yureshezhiLayer_3.updown_cb = node_widget_up_down;
+	yureshezhiLayer_3.updown_cb = yure_yureshezhiLayer_up_down_cb;
 	yureshezhiLayer_3.type = 1;
+
+#if 0
+
 
 
 	//模式
@@ -1376,12 +1474,11 @@ int SceneRun(void)
                 {
                 case SDLK_UP:
 					curr_node_widget->updown_cb(curr_node_widget, 0);
-                    //ituSceneSendEvent(&theScene, EVENT_CUSTOM_KEY0, NULL);
                     break;
 
                 case SDLK_DOWN:
 					curr_node_widget->updown_cb(curr_node_widget, 1);
-                    //ituSceneSendEvent(&theScene, EVENT_CUSTOM_KEY1, NULL);
+                    
                     break;
 				case 13:
 					//pc确定
@@ -1389,7 +1486,6 @@ int SceneRun(void)
 					break;
 
                 case SDLK_LEFT:
-                    //ituSceneSendEvent(&theScene, EVENT_CUSTOM_KEY2, NULL);
 					//关机
 					if (yingxue_base.run_state == 1){
 						yingxue_base.run_state = 2;

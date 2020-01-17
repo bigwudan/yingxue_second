@@ -176,6 +176,69 @@ static void yureshijianLayer()
 
 }
 
+//预热设置温度和北京时间
+static void yureshezhiLayer()
+{
+	ITUWidget *t_widget = NULL;
+	char t_buf[10] = { 0 };
+	//默认选中第一个
+	curr_node_widget = &yureshezhiLayer_0;
+	//没有选中
+	t_widget = ituSceneFindWidget(&theScene, "BackgroundButton60");
+	ituWidgetSetVisible(t_widget, false);
+
+	//焦点在
+	t_widget = ituSceneFindWidget(&theScene, "BackgroundButton85");
+	ituWidgetSetVisible(t_widget, true);
+
+
+
+	//Background37
+	//焦点选框
+	t_widget = ituSceneFindWidget(&theScene, "Background37");
+	ituWidgetSetVisible(t_widget, false);
+
+	//选中背景
+	t_widget = ituSceneFindWidget(&theScene, "Background45");
+	ituWidgetSetVisible(t_widget, false);
+	//Background33
+	//焦点选框
+	t_widget = ituSceneFindWidget(&theScene, "Background33");
+	ituWidgetSetVisible(t_widget, false);
+
+	//选中背景Background105
+	t_widget = ituSceneFindWidget(&theScene, "Background105");
+	ituWidgetSetVisible(t_widget, false);
+
+
+	//Background4
+	//焦点
+	t_widget = ituSceneFindWidget(&theScene, "Background40");
+	ituWidgetSetVisible(t_widget, false);
+
+	//选中背景
+	t_widget = ituSceneFindWidget(&theScene, "Background107");
+	ituWidgetSetVisible(t_widget, false);
+
+	//设置时间
+	struct timeval curr_time;
+	struct tm *t_tm;
+	get_rtc_time(&curr_time, NULL);
+	t_tm = localtime(&curr_time);
+
+	//设置小时
+	t_widget = ituSceneFindWidget(&theScene, "Text42");
+	sprintf(t_buf, "%02d", t_tm->tm_hour);
+	ituTextSetString(t_widget, t_buf);
+
+	//设置min
+	t_widget = ituSceneFindWidget(&theScene, "Text43");
+	sprintf(t_buf, "%02d", t_tm->tm_min);
+	ituTextSetString(t_widget, t_buf);
+}
+
+
+
 //樱雪每个页面初始化
 bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 {
@@ -185,7 +248,7 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 
 	//welcome页面
 	if (strcmp(widget->name, "welcom") == 0){
-		ituLayerGoto(ituSceneFindWidget(&theScene, "yureshijianLayer"));
+		ituLayerGoto(ituSceneFindWidget(&theScene, "yureshezhiLayer"));
 	}
 	//MainLayer 首页
 	else if (strcmp(widget->name, "MainLayer") == 0){
@@ -198,6 +261,10 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 	//预热时间设置
 	else if (strcmp(widget->name, "yureshijianLayer") == 0){
 		yureshijianLayer();
+	}
+	//预热设置 温度，北京时间yureshezhiLayer
+	else if (strcmp(widget->name, "yureshezhiLayer") == 0){
+		yureshezhiLayer();
 	}
 	return true;
 
