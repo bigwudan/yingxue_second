@@ -96,7 +96,73 @@ static void MainLayer_init()
 	//初始化状态
 	yingxue_base.adjust_temp_state = 0;
 	is_shake = 0;
+
+	//预热模式 0 预热 1单巡航 2全天候巡航 3下次预热时间
+	t_widget = ituSceneFindWidget(&theScene, "yureSprite");
+	
+	if (yingxue_base.yure_mode == 0){
+		ituSpriteGoto(t_widget, 0);
+	}
+	else if (yingxue_base.yure_mode == 1){
+		ituSpriteGoto(t_widget, 1);
+	}
+	else if (yingxue_base.yure_mode == 2){
+		ituSpriteGoto(t_widget, 2);
+	}
+	else if (yingxue_base.yure_mode == 3){
+		int beg = 0;
+		int end = 0;
+		char t_buf[100] = { 0 };
+		//计算下次预热时间
+		beg = 1;
+		end = 2;
+		if (end == 0) end = beg;
+		sprintf(t_buf, "%d:00--%d:59", beg, end);
+		ituTextSetString(ituSceneFindWidget(&theScene, "Text35"), t_buf);
+		ituSpriteGoto(t_widget, 3);
+
+	}
+
 }
+
+//预热进入初始化
+static void yureLayer()
+{
+	ITUWidget *t_widget = NULL;
+	//全部隐藏
+	t_widget = ituSceneFindWidget(&theScene, "BackgroundButton78");
+	ituWidgetSetVisible(t_widget, false);
+	t_widget = ituSceneFindWidget(&theScene, "Background27");
+	ituWidgetSetVisible(t_widget, false);
+	t_widget = ituSceneFindWidget(&theScene, "Background30");
+	ituWidgetSetVisible(t_widget, false);
+	t_widget = ituSceneFindWidget(&theScene, "Background46");
+	ituWidgetSetVisible(t_widget, false);
+	t_widget = ituSceneFindWidget(&theScene, "Background132");
+	ituWidgetSetVisible(t_widget, false);
+	//第三个大框中的小框
+	t_widget = ituSceneFindWidget(&theScene, "Background94");
+	ituWidgetSetVisible(t_widget, false);
+	//默认选中第一个
+	curr_node_widget = &yureLayer_0;
+	t_widget = ituSceneFindWidget(&theScene, curr_node_widget->focus_back_name);
+	ituWidgetSetVisible(t_widget, true);
+	t_widget = ituSceneFindWidget(&theScene, curr_node_widget->name);
+	ituWidgetSetVisible(t_widget, false);
+
+
+	//预热时间
+	int beg = 0;
+	int end = 0;
+	char t_buf[100] = { 0 };
+	//计算下次预热时间
+//	calcNextYure(&beg, &end);
+	if (end == 0) end = beg;
+	sprintf(t_buf, "%02d--%02d", beg, end);
+	t_widget = ituSceneFindWidget(&theScene, "Text99");
+	ituTextSetString(t_widget, t_buf);
+}
+
 
 //樱雪每个页面初始化
 bool YX_MenuOnEnter(ITUWidget* widget, char* param)
@@ -112,6 +178,10 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 	//MainLayer 首页
 	else if (strcmp(widget->name, "MainLayer") == 0){
 		MainLayer_init();
+	}
+	//预热页面
+	else if (strcmp(widget->name, "yureLayer") == 0){
+		yureLayer();
 	}
 
 

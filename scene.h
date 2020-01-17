@@ -143,6 +143,9 @@ struct yingxue_base_tag{
 	unsigned char shizhe_temp;//设置温度
 	unsigned char chushui_temp;//出水温度
 	unsigned char jinshui_temp;//进水温度
+	unsigned char yure_mode; //预热模式 0无模式 1单巡航模式 2 全天候模式 3 预约模式
+	struct timeval yure_begtime; //预热开始时间
+	struct timeval yure_endtime; //预热结束时间
 	unsigned char err_no;//错误代码
 	unsigned char is_err;//是否故障
 	

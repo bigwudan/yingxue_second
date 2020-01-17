@@ -167,6 +167,77 @@ int get_rtc_time(struct  timeval *dst, unsigned char *zone)
 	return 1;
 }
 
+//通用上下移动
+static void command_widget_up_down(struct node_widget *t_node_widget)
+{
+	struct ITUWidget *t_widget = NULL;
+	//如果之前的控件是需要整个变换背景，
+	if ((strcmp(curr_node_widget->name, "BackgroundButton47") == 0) ||
+		(strcmp(curr_node_widget->name, "BackgroundButton65") == 0) ||
+		(strcmp(curr_node_widget->name, "BackgroundButton60") == 0) ||
+		(strcmp(curr_node_widget->name, "BackgroundButton68") == 0) ||
+		(strcmp(curr_node_widget->name, "moshi_BackgroundButton10") == 0) ||
+		(strcmp(curr_node_widget->name, "moshi_BackgroundButton11") == 0) ||
+		(strcmp(curr_node_widget->name, "moshi_BackgroundButton12") == 0) ||
+		(strcmp(curr_node_widget->name, "moshi_BackgroundButton13") == 0) ||
+		(strcmp(curr_node_widget->name, "chushui_BackgroundButton73") == 0) ||
+		(strcmp(curr_node_widget->name, "chushui_BackgroundButton1") == 0)
+
+
+		){
+		t_widget = ituSceneFindWidget(&theScene, curr_node_widget->focus_back_name);
+		ituWidgetSetVisible(t_widget, false);
+		t_widget = ituSceneFindWidget(&theScene, curr_node_widget->name);
+		ituWidgetSetVisible(t_widget, true);
+	}
+
+	//如果现在的控件是需要变换背景
+	if ((strcmp(t_node_widget->name, "BackgroundButton47") == 0) ||
+		(strcmp(t_node_widget->name, "BackgroundButton65") == 0) ||
+		(strcmp(t_node_widget->name, "BackgroundButton60") == 0) ||
+		(strcmp(t_node_widget->name, "BackgroundButton68") == 0) ||
+		(strcmp(t_node_widget->name, "moshi_BackgroundButton10") == 0) ||
+		(strcmp(t_node_widget->name, "moshi_BackgroundButton11") == 0) ||
+		(strcmp(t_node_widget->name, "moshi_BackgroundButton12") == 0) ||
+		(strcmp(t_node_widget->name, "moshi_BackgroundButton13") == 0) ||
+		(strcmp(t_node_widget->name, "chushui_BackgroundButton73") == 0) ||
+		(strcmp(t_node_widget->name, "chushui_BackgroundButton1") == 0)
+		){
+		t_widget = ituSceneFindWidget(&theScene, t_node_widget->focus_back_name);
+		ituWidgetSetVisible(t_widget, true);
+		t_widget = ituSceneFindWidget(&theScene, t_node_widget->name);
+		ituWidgetSetVisible(t_widget, false);
+
+		//原来的控件去掉边框
+		//原来控件是radio
+		if (strcmp(curr_node_widget->focus_back_name, "radio") == 0){
+			t_widget = ituSceneFindWidget(&theScene, curr_node_widget->name);
+			ituWidgetSetActive(t_widget, false);
+		}
+		//控件普通
+		else{
+			t_widget = ituSceneFindWidget(&theScene, curr_node_widget->focus_back_name);
+			ituWidgetSetVisible(t_widget, false);
+		}
+		curr_node_widget = t_node_widget;
+	}
+	else if (strcmp(t_node_widget->focus_back_name, "radio") == 0){
+		t_widget = ituSceneFindWidget(&theScene, t_node_widget->name);
+		ituFocusWidget(t_widget);
+		curr_node_widget = t_node_widget;
+	}
+	else{
+		//隐藏当前控件选中状态
+		t_widget = ituSceneFindWidget(&theScene, curr_node_widget->focus_back_name);
+		ituWidgetSetVisible(t_widget, false);
+		//显示当前的控件
+		t_widget = ituSceneFindWidget(&theScene, t_node_widget->focus_back_name);
+		ituWidgetSetVisible(t_widget, true);
+		curr_node_widget = t_node_widget;
+	}
+
+}
+
 
 //主页面确定回调事件
 //@param widget 点击控件
@@ -213,15 +284,8 @@ static void main_widget_up_down_cb(struct node_widget *widget, unsigned char sta
 				t_node_widget = widget->down;
 			}
 		}
-
 		if (t_node_widget){
-			//隐藏当前控件选中状态
-			t_widget = ituSceneFindWidget(&theScene, curr_node_widget->focus_back_name);
-			ituWidgetSetVisible(t_widget, false);
-			//显示当前的控件
-			t_widget = ituSceneFindWidget(&theScene, t_node_widget->focus_back_name);
-			ituWidgetSetVisible(t_widget, true);
-			curr_node_widget = t_node_widget;
+			command_widget_up_down(t_node_widget);
 		}
 	}
 	else{
@@ -242,6 +306,109 @@ static void main_widget_up_down_cb(struct node_widget *widget, unsigned char sta
 			ituTextSetString(t_widget, t_buf);
 		}
 	}
+}
+
+//预热页面确认
+static void yure_widget_confirm_cb(struct node_widget *widget, unsigned char state)
+{
+	ITUWidget *t_widget = NULL;
+	if (strcmp(widget->name, "BackgroundButton47") == 0){
+		t_widget = ituSceneFindWidget(&theScene, "MainLayer");
+		ituLayerGoto((ITULayer *)t_widget);
+	}
+	//Background27
+	else if (strcmp(widget->name, "BackgroundButton14") == 0){
+		//单次巡航 从现在到2个小时结束
+		//同一个，取消
+		if (yingxue_base.yure_mode == 1){
+			yingxue_base.yure_mode = 0;
+			memset(&yingxue_base.yure_endtime, 0, sizeof(struct timeval));
+			//发送取消
+			
+		
+		}
+		else{
+			//发送开始
+			
+			yingxue_base.yure_mode = 1;
+			get_rtc_time(&yingxue_base.yure_begtime, NULL);
+			//2个小时 
+			yingxue_base.yure_endtime.tv_sec = yingxue_base.yure_begtime.tv_sec + 60 * 60 * 2;
+
+
+		}
+		t_widget = ituSceneFindWidget(&theScene, "MainLayer");
+		ituLayerGoto((ITULayer *)t_widget);
+	}
+	else if (strcmp(widget->name, "BackgroundButton19") == 0){
+		//全天候模式：
+		//启动：从点击巡航模式，即刻开始，发送一次串口命令：预热中的数据2“循环预热”
+		if (yingxue_base.yure_mode == 2){
+			yingxue_base.yure_mode = 0;
+			memset(&yingxue_base.yure_endtime, 0, sizeof(struct timeval));
+			//发送取消
+		}
+		else{
+			yingxue_base.yure_mode = 2;
+			get_rtc_time(&yingxue_base.yure_begtime, NULL);
+			memset(&yingxue_base.yure_endtime, 0, sizeof(struct timeval));
+			//发送预热开始
+		}
+		t_widget = ituSceneFindWidget(&theScene, "MainLayer");
+		ituLayerGoto((ITULayer *)t_widget);
+	}
+	//BackgroundButton20
+	else if (strcmp(widget->name, "BackgroundButton20") == 0){
+		/*
+		预约模式：
+		启动：定时时间到达，发送一次串口命令：预热中的数据2“循环预热”，
+		结束：自动延迟1个小时，发送一次串口命令，TFT在发送 预热命令  0- 预热关闭是吧
+		*/
+		if (yingxue_base.yure_mode == 3){
+			yingxue_base.yure_mode = 0;
+			memset(&yingxue_base.yure_endtime, 0, sizeof(struct timeval));
+			//发送取消
+		}
+		else{
+			yingxue_base.yure_mode = 3;
+		}
+		t_widget = ituSceneFindWidget(&theScene, "MainLayer");
+		ituLayerGoto((ITULayer *)t_widget);
+	}
+	//设置预热时间
+	else if (strcmp(widget->name, "BackgroundButton2") == 0){
+		//设置预约时间
+		t_widget = ituSceneFindWidget(&theScene, "yureshijianLayer");
+		ituLayerGoto((ITULayer *)t_widget);
+	}
+	//设置预热回水温度和北京时间
+	else if (strcmp(widget->name, "BackgroundButton21") == 0){
+		t_widget = ituSceneFindWidget(&theScene, "yureshezhiLayer");
+		ituLayerGoto((ITULayer *)t_widget);
+
+	}
+
+}
+
+//预热页面上下移动
+static void yure_widget_up_down_cb(struct node_widget *widget, unsigned char state)
+{
+	struct node_widget *t_node_widget = NULL;
+	struct ITUWidget *t_widget = NULL;
+	if (state == 0){
+		if (widget->up)
+			t_node_widget = widget->up;
+	}
+	else{
+		if (widget->down){
+			t_node_widget = widget->down;
+		}
+	}
+
+	if (t_node_widget){
+		command_widget_up_down(t_node_widget);
+	}
+
 }
 
 //按键时间发生时的触发事件
@@ -279,51 +446,51 @@ static void node_widget_init()
 	mainlayer_2.confirm_cb = main_widget_confirm_cb;
 	mainlayer_2.updown_cb = main_widget_up_down_cb;
 
-#if 0
+
 	//预热界面
 	yureLayer_0.up = NULL;
 	yureLayer_0.down = &yureLayer_1;
 	yureLayer_0.focus_back_name = "BackgroundButton78";
 	yureLayer_0.name = "BackgroundButton47";
-	yureLayer_0.confirm_cb = yure_node_widget_confirm_cb;
-	yureLayer_0.updown_cb = node_widget_up_down;
+	yureLayer_0.confirm_cb = yure_widget_confirm_cb;
+	yureLayer_0.updown_cb = yure_widget_up_down_cb;
 
 	yureLayer_1.up = &yureLayer_0;
 	yureLayer_1.down = &yureLayer_2;
 	yureLayer_1.focus_back_name = "Background27";
 	yureLayer_1.name = "BackgroundButton14";
-	yureLayer_1.confirm_cb = yure_node_widget_confirm_cb;
-	yureLayer_1.updown_cb = node_widget_up_down;
+	yureLayer_1.confirm_cb = yure_widget_confirm_cb;
+	yureLayer_1.updown_cb = yure_widget_up_down_cb;
 
 	yureLayer_2.up = &yureLayer_1;
 	yureLayer_2.down = &yureLayer_3;
 	yureLayer_2.focus_back_name = "Background30";
 	yureLayer_2.name = "BackgroundButton19";
-	yureLayer_2.confirm_cb = yure_node_widget_confirm_cb;
-	yureLayer_2.updown_cb = node_widget_up_down;
+	yureLayer_2.confirm_cb = yure_widget_confirm_cb;
+	yureLayer_2.updown_cb = yure_widget_up_down_cb;
 
 
 	yureLayer_3.up = &yureLayer_2;
 	yureLayer_3.down = &yureLayer_4;
 	yureLayer_3.focus_back_name = "Background132";
 	yureLayer_3.name = "BackgroundButton20";
-	yureLayer_3.confirm_cb = yure_node_widget_confirm_cb;
-	yureLayer_3.updown_cb = node_widget_up_down;
+	yureLayer_3.confirm_cb = yure_widget_confirm_cb;
+	yureLayer_3.updown_cb = yure_widget_up_down_cb;
 
 	yureLayer_4.up = &yureLayer_3;
 	yureLayer_4.down = &yureLayer_5;
 	yureLayer_4.focus_back_name = "Background94";
 	yureLayer_4.name = "BackgroundButton2";
-	yureLayer_4.confirm_cb = yure_node_widget_confirm_cb;
-	yureLayer_4.updown_cb = node_widget_up_down;
+	yureLayer_4.confirm_cb = yure_widget_confirm_cb;
+	yureLayer_4.updown_cb = yure_widget_up_down_cb;
 
 	yureLayer_5.up = &yureLayer_4;
 	yureLayer_5.down = NULL;
 	yureLayer_5.focus_back_name = "Background46";
 	yureLayer_5.name = "BackgroundButton21";
-	yureLayer_5.confirm_cb = yure_node_widget_confirm_cb;
-	yureLayer_5.updown_cb = node_widget_up_down;
-
+	yureLayer_5.confirm_cb = yure_widget_confirm_cb;
+	yureLayer_5.updown_cb = yure_widget_up_down_cb;
+#if 0
 	//预约时间
 	yureshezhiLayer_0.up = NULL;
 	yureshezhiLayer_0.down = &yureshezhiLayer_1;
