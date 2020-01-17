@@ -134,6 +134,11 @@ struct node_widget
 	node_widget_cb long_press_cb; //长按
 };
 
+//模式
+struct moshi_data{
+	unsigned char temp;
+};
+
 //樱雪基础数据
 struct yingxue_base_tag{
 	unsigned char adjust_temp_state; // 0调整温度状态 1正在调整 2闪烁 3解除锁定，可以上下移动
@@ -144,6 +149,14 @@ struct yingxue_base_tag{
 	unsigned char chushui_temp;//出水温度
 	unsigned char jinshui_temp;//进水温度
 	unsigned char huishui_temp; //回水温度 ,预热设置回差
+
+	unsigned char moshi_mode; // 模式 0无模式 1 普通模式 2 超级模式 3 节能模式 4 水果模式
+
+	struct moshi_data normal_moshi; //普通模式
+	struct moshi_data super_moshi; //超级模式
+	struct moshi_data eco_moshi; //节能模式
+	struct moshi_data fruit_moshi; //水果模式
+	unsigned char select_set_moshi_mode;// 选择设置模式 0无模式 1 普通模式 2 超级模式 3 节能模式 4 水果模式
 
 	unsigned char yure_mode; //预热模式 0无模式 1单巡航模式 2 全天候模式 3 预约模式
 	struct timeval yure_begtime; //预热开始时间

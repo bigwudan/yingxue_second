@@ -11,10 +11,15 @@ extern bool MainLayerOnTimer(ITUWidget* widget, char* param);
 extern bool WelcomeOnTimer(ITUWidget* widget, char* param);
 
 
+//´íÎó»­Ãæ
+extern bool ERROnTimer(ITUWidget* widget, char* param);
+
+
 ITUActionFunction actionFunctions[] =
 {
 	"YX_MenuOnEnter", YX_MenuOnEnter,
 	"MainLayerOnTimer", MainLayerOnTimer,
 	"WelcomeOnTimer", WelcomeOnTimer,
+	"ERROnTimer", ERROnTimer,
     NULL, NULL
 };

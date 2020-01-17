@@ -237,7 +237,101 @@ static void yureshezhiLayer()
 	ituTextSetString(t_widget, t_buf);
 }
 
+//设置模式
+static void moshiLayer()
+{
+	//默认选中第一个
+	curr_node_widget = &moshiLayer_0;
+	ITUWidget *t_widget = NULL;
 
+	//显示所有
+	t_widget = ituSceneFindWidget(&theScene, "BackgroundButton33");
+	ituWidgetSetVisible(t_widget, true);
+	//1
+	t_widget = ituSceneFindWidget(&theScene, "moshi_BackgroundButton10");
+	ituWidgetSetVisible(t_widget, true);
+
+	//2
+	t_widget = ituSceneFindWidget(&theScene, "moshi_BackgroundButton11");
+	ituWidgetSetVisible(t_widget, true);
+
+	//3
+	t_widget = ituSceneFindWidget(&theScene, "moshi_BackgroundButton12");
+	ituWidgetSetVisible(t_widget, true);
+
+	//4
+	t_widget = ituSceneFindWidget(&theScene, "moshi_BackgroundButton13");
+	ituWidgetSetVisible(t_widget, true);
+
+
+
+	t_widget = ituSceneFindWidget(&theScene, "BackgroundButton68");
+	ituWidgetSetVisible(t_widget, false);
+	//1
+	t_widget = ituSceneFindWidget(&theScene, "moshi_BackgroundButton80");
+	ituWidgetSetVisible(t_widget, false);
+
+	//2
+	t_widget = ituSceneFindWidget(&theScene, "moshi_BackgroundButton79");
+	ituWidgetSetVisible(t_widget, false);
+
+	//3
+	t_widget = ituSceneFindWidget(&theScene, "moshi_BackgroundButton81");
+	ituWidgetSetVisible(t_widget, false);
+
+	//4
+	t_widget = ituSceneFindWidget(&theScene, "moshi_BackgroundButton82");
+	ituWidgetSetVisible(t_widget, false);
+
+}
+
+//设置模式
+static void chushui()
+{
+	ITUWidget *t_widget = NULL;
+	char t_buf[10] = { 0 };
+	//默认第一个
+	curr_node_widget = &chushui_0;
+
+	t_widget = ituSceneFindWidget(&theScene, "chushui_BackgroundButton7");
+	ituWidgetSetVisible(t_widget, true);
+	//1
+	t_widget = ituSceneFindWidget(&theScene, "chushui_BackgroundButton73");
+	ituWidgetSetVisible(t_widget, false);
+
+
+	//根据设置温度显示Text38
+	t_widget = ituSceneFindWidget(&theScene, "Text38");
+	if (yingxue_base.select_set_moshi_mode > 0){
+		if (yingxue_base.select_set_moshi_mode == 1){
+			sprintf(t_buf, "%02d", yingxue_base.normal_moshi.temp);
+			ituTextSetString(t_widget, t_buf);
+		}
+		else if (yingxue_base.select_set_moshi_mode == 2){
+			sprintf(t_buf, "%02d", yingxue_base.super_moshi.temp);
+			ituTextSetString(t_widget, t_buf);
+		}
+		else if (yingxue_base.select_set_moshi_mode == 3){
+			sprintf(t_buf, "%02d", yingxue_base.eco_moshi.temp);
+			ituTextSetString(t_widget, t_buf);
+		}
+		else if (yingxue_base.select_set_moshi_mode == 4){
+			sprintf(t_buf, "%02d", yingxue_base.fruit_moshi.temp);
+			ituTextSetString(t_widget, t_buf);
+		}
+	}
+
+	//选中背景
+	t_widget = ituSceneFindWidget(&theScene, "chushui_Background45");
+	ituWidgetSetVisible(t_widget, false);
+	//焦点
+	t_widget = ituSceneFindWidget(&theScene, "chushui_Background37");
+	ituWidgetSetVisible(t_widget, false);
+
+	//确定按键
+	t_widget = ituSceneFindWidget(&theScene, "chushui_Background51");
+	ituWidgetSetVisible(t_widget, false);
+}
 
 //樱雪每个页面初始化
 bool YX_MenuOnEnter(ITUWidget* widget, char* param)
@@ -248,7 +342,7 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 
 	//welcome页面
 	if (strcmp(widget->name, "welcom") == 0){
-		ituLayerGoto(ituSceneFindWidget(&theScene, "yureshezhiLayer"));
+		ituLayerGoto(ituSceneFindWidget(&theScene, "moshiLayer"));
 	}
 	//MainLayer 首页
 	else if (strcmp(widget->name, "MainLayer") == 0){
@@ -265,6 +359,13 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 	//预热设置 温度，北京时间yureshezhiLayer
 	else if (strcmp(widget->name, "yureshezhiLayer") == 0){
 		yureshezhiLayer();
+	}
+	else if (strcmp(widget->name, "moshiLayer") == 0){
+		moshiLayer();
+	}
+	//chushui
+	else if (strcmp(widget->name, "chushui") == 0){
+		chushui();
 	}
 	return true;
 
@@ -400,6 +501,15 @@ bool WelcomeOnTimer(ITUWidget* widget, char* param)
 	}
 }
 
+//ERROnTimer
+bool ERROnTimer(ITUWidget* widget, char* param)
+{
+	sleep(2);
+	if (yingxue_base.is_err == 0){
+		ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
+	}
+	return true;
+}
 
 void MainMenuReset(void)
 {
