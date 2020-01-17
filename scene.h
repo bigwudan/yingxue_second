@@ -164,7 +164,9 @@ struct yingxue_base_tag{
 	unsigned char dingshi_list[24]; // //定时时间数组,0未开启 1开启
 	unsigned char err_no;//错误代码
 	unsigned char is_err;//是否故障
-	
+	//是否已经预热
+	unsigned char yure_state; //0 未预热 1已经预热
+
 };
 enum main_pthread_mq_state
 {

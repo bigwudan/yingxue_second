@@ -1546,6 +1546,47 @@ static void* UartFunc(void* arg)
 	return NULL;
 }
 
+//判断是否有定时任务
+static void run_time_task()
+{
+	struct tm *tm_t;
+	struct   timeval tm;
+	get_rtc_time(&tm, NULL);
+	tm_t = localtime(&tm.tv_sec);
+	if (yingxue_base.yure_mode == 0) return;
+
+	//单巡航模式
+	if (yingxue_base.yure_mode == 1){
+		if (tm.tv_sec > yingxue_base.yure_endtime.tv_sec){
+			//结束预热指令
+			SEND_CLOSE_YURE_CMD();
+			memset(&yingxue_base.yure_begtime, 0, sizeof(struct timeval));
+			memset(&yingxue_base.yure_endtime, 0, sizeof(struct timeval));
+			yingxue_base.yure_mode = 0;
+			yingxue_base.yure_state = 0;
+		}
+	}
+	//预热定时任务
+	else if (yingxue_base.yure_mode == 3){
+		//这个时间是否需要启动
+		if (*(yingxue_base.dingshi_list + tm_t->tm_hour - 1) == 1){
+			if (yingxue_base.yure_state == 0){
+				//开始
+				SEND_OPEN_YURE_CMD();
+				yingxue_base.yure_state = 1;
+			}
+		}
+		//这个时间 是否需要关闭
+		else{
+			if (yingxue_base.yure_state == 1){
+				//结束
+				SEND_CLOSE_YURE_CMD();
+				yingxue_base.yure_state = 0;
+			}
+		}
+	}
+}
+
 void SceneInit(void)
 {
     struct mq_attr  attr;
@@ -2045,6 +2086,8 @@ int SceneRun(void)
 			}
 
 		}
+
+		//判断是否定时任务需要发送数据
 
 
 #ifdef CFG_LCD_ENABLE
