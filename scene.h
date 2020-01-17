@@ -153,7 +153,10 @@ struct yingxue_base_tag{
 };
 
 //获取当前时间
-extern int get_rtc_time(struct  timeval *dst, unsigned char *zone);
+int get_rtc_time(struct  timeval *dst, unsigned char *zone);
+
+//计算下次的预约时间
+void calcNextYure(int *beg, int *end);
 
 #ifdef __cplusplus
 }

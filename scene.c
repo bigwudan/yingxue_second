@@ -153,6 +153,57 @@ struct node_widget chushui_2;
 struct timeval last_down_time;
 
 
+
+//计算下一次预约的时间
+void calcNextYure(int *beg, int *end)
+{
+	//计算时间
+	struct timeval curr_time;
+	struct tm *t_tm;
+	unsigned char cur_hour;
+	unsigned char num;
+	*beg = 0;
+	*end = 0;
+	get_rtc_time(&curr_time, NULL);
+	t_tm = localtime(&curr_time);
+	cur_hour = t_tm->tm_hour;
+	//开始是否找到
+	unsigned char is_beg = 0;
+
+	//先向前。如何没有找到从新开始找
+	for (int i = 0; i < 2; i++){
+		if (i == 0){
+			num = cur_hour;
+		}
+		else{
+			num = 0;
+		}
+		for (int j = num; j < 24; j++)
+		{
+			//存在时间
+			if (*(yingxue_base.dingshi_list + j) == 1){
+				//开始计算
+				if (is_beg == 0){
+					*beg = j;
+					is_beg = 1;
+				}
+				//结束连续时间一直计算
+				else if (is_beg == 1){
+					*end = j;
+				}
+			}
+			else{
+				//如果有断层立即结束
+				if (*beg != 0) break;
+			}
+		}
+		if (*beg != 0) break;
+	}
+
+	return;
+}
+
+
 //得到当前时间戳
 int get_rtc_time(struct  timeval *dst, unsigned char *zone)
 {

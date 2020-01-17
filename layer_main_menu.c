@@ -114,8 +114,7 @@ static void MainLayer_init()
 		int end = 0;
 		char t_buf[100] = { 0 };
 		//计算下次预热时间
-		beg = 1;
-		end = 2;
+		calcNextYure(&beg, &end);
 		if (end == 0) end = beg;
 		sprintf(t_buf, "%d:00--%d:59", beg, end);
 		ituTextSetString(ituSceneFindWidget(&theScene, "Text35"), t_buf);
@@ -156,7 +155,7 @@ static void yureLayer()
 	int end = 0;
 	char t_buf[100] = { 0 };
 	//计算下次预热时间
-//	calcNextYure(&beg, &end);
+	calcNextYure(&beg, &end);
 	if (end == 0) end = beg;
 	sprintf(t_buf, "%02d--%02d", beg, end);
 	t_widget = ituSceneFindWidget(&theScene, "Text99");
