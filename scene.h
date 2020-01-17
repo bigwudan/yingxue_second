@@ -176,6 +176,23 @@ void set_rtc_time(unsigned char hour, unsigned char min);
 //计算下次的预约时间
 void calcNextYure(int *beg, int *end);
 
+enum send_uart_state
+{
+	OPEN_CMD, //开机
+	CLOSE_CMD, //关机
+	RUN_YURE, //开预热
+	CLOSE_YURE, //关预热
+	SET_TEMP, //设置温度
+};
+
+//串口的数据
+struct uart_data_tag{
+	unsigned char buf_data[11]; //当前缓存
+	enum send_uart_state state; //状态  0正常 1错误 2已经完成
+};
+
+#define UART_PORT       ITP_DEVICE_UART3
+#define UART_DEVICE     itpDeviceUart3	
 
 
 #ifdef __cplusplus

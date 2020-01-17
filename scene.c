@@ -79,6 +79,9 @@ extern void ScreenSetDoubleClick(void);
 
 //樱雪
 
+//串口消息
+mqd_t uartQueue = -1;
+
 //是否已经处理超时 0 未处理 1 已经处理
 unsigned char is_deal_over_time;
 
@@ -1222,7 +1225,11 @@ static void over_time_process()
 }
 
 
-
+//线程串口回调函数
+static void* UartFunc(void* arg)
+{
+	return NULL;
+}
 
 void SceneInit(void)
 {
@@ -1624,6 +1631,29 @@ int SceneRun(void)
     dblclk = frames = lasttick = lastx = lasty = mouseDownTick = 0;
 
 	//樱雪初始化
+	//串口
+#ifndef _WIN32
+	itpRegisterDevice(UART_PORT, &UART_DEVICE);
+	ioctl(UART_PORT, ITP_IOCTL_INIT, NULL);
+	ioctl(UART_PORT, ITP_IOCTL_RESET, (void *)CFG_UART3_BAUDRATE);
+#endif
+
+
+	//消息队列
+	struct mq_attr mq_uart_attr;
+	mq_uart_attr.mq_flags = 0;
+	mq_uart_attr.mq_maxmsg = 10;
+	mq_uart_attr.mq_msgsize = sizeof(struct uart_data_tag);
+	uartQueue = mq_open("scene", O_CREAT | O_NONBLOCK, 0644, &mq_uart_attr);
+
+	
+	//收发串口线程
+	pthread_t task;
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_create(&task, &attr, UartFunc, NULL);
+	
+
 	node_widget_init();
     for (;;)
     {
