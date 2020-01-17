@@ -411,6 +411,52 @@ static void yure_widget_up_down_cb(struct node_widget *widget, unsigned char sta
 
 }
 
+//预热时间上下移动
+static void yure_settime_up_down_cb(struct node_widget *widget, unsigned char state)
+{
+	struct node_widget *t_node_widget = NULL;
+	struct ITUWidget *t_widget = NULL;
+	if (state == 0){
+		if (widget->up)
+			t_node_widget = widget->up;
+	}
+	else{
+		if (widget->down){
+			t_node_widget = widget->down;
+		}
+	}
+
+	if (t_node_widget){
+		command_widget_up_down(t_node_widget);
+	}
+}
+
+//预热定时确定
+static void yure_settime_widget_confirm_cb(struct node_widget *widget, unsigned char state)
+{
+	ITUWidget *t_widget = NULL;
+	int value = widget->value;
+	if (strcmp(widget->name, "BackgroundButton65") == 0){
+		t_widget = ituSceneFindWidget(&theScene, "yureLayer");
+		ituLayerGoto((ITULayer *)t_widget);
+	}
+	//点击单项按键
+	else if (strcmp(widget->focus_back_name, "radio") == 0){
+		t_widget = ituSceneFindWidget(&theScene, widget->name);
+		//如果已经是点击状态，取消状态
+		if (ituRadioBoxIsChecked(t_widget)){
+			ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			*(yingxue_base.dingshi_list + value) = 0;
+		}
+		//不是点击状态，加入点击状态
+		else{
+			ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			*(yingxue_base.dingshi_list + value) = 1;
+		}
+	}
+}
+
+
 //按键时间发生时的触发事件
 static void key_down_process()
 {
@@ -490,6 +536,208 @@ static void node_widget_init()
 	yureLayer_5.name = "BackgroundButton21";
 	yureLayer_5.confirm_cb = yure_widget_confirm_cb;
 	yureLayer_5.updown_cb = yure_widget_up_down_cb;
+
+	//预热定时
+	yureshijian_widget_0.up = NULL;
+	yureshijian_widget_0.down = &yureshijian_widget_num_0;
+	yureshijian_widget_0.focus_back_name = "BackgroundButton30"; //选中
+	yureshijian_widget_0.name = "BackgroundButton65";//未选中
+	yureshijian_widget_0.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_0.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_0.value = 0;
+	yureshijian_widget_num_0.up = &yureshijian_widget_0;
+	yureshijian_widget_num_0.down = &yureshijian_widget_num_1;
+	yureshijian_widget_num_0.focus_back_name = "radio";
+	yureshijian_widget_num_0.name = "RadioBox2";
+	yureshijian_widget_num_0.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_0.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_1.value = 1;
+	yureshijian_widget_num_1.up = &yureshijian_widget_num_0;
+	yureshijian_widget_num_1.down = &yureshijian_widget_num_2;
+	yureshijian_widget_num_1.focus_back_name = "radio";
+	yureshijian_widget_num_1.name = "RadioBox5";
+	yureshijian_widget_num_1.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_1.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_2.value = 2;
+	yureshijian_widget_num_2.up = &yureshijian_widget_num_1;
+	yureshijian_widget_num_2.down = &yureshijian_widget_num_3;
+	yureshijian_widget_num_2.focus_back_name = "radio";
+	yureshijian_widget_num_2.name = "RadioBox31";
+	yureshijian_widget_num_2.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_2.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_3.value = 3;
+	yureshijian_widget_num_3.up = &yureshijian_widget_num_2;
+	yureshijian_widget_num_3.down = &yureshijian_widget_num_4;
+	yureshijian_widget_num_3.focus_back_name = "radio";
+	yureshijian_widget_num_3.name = "RadioBox32";
+	yureshijian_widget_num_3.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_3.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_4.value = 4;
+	yureshijian_widget_num_4.up = &yureshijian_widget_num_3;
+	yureshijian_widget_num_4.down = &yureshijian_widget_num_5;
+	yureshijian_widget_num_4.focus_back_name = "radio";
+	yureshijian_widget_num_4.name = "RadioBox59";
+	yureshijian_widget_num_4.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_4.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_5.value = 5;
+	yureshijian_widget_num_5.up = &yureshijian_widget_num_4;
+	yureshijian_widget_num_5.down = &yureshijian_widget_num_6;
+	yureshijian_widget_num_5.focus_back_name = "radio";
+	yureshijian_widget_num_5.name = "RadioBox58";
+	yureshijian_widget_num_5.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_5.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_6.value = 6;
+	yureshijian_widget_num_6.up = &yureshijian_widget_num_5;
+	yureshijian_widget_num_6.down = &yureshijian_widget_num_7;
+	yureshijian_widget_num_6.focus_back_name = "radio";
+	yureshijian_widget_num_6.name = "RadioBox57";
+	yureshijian_widget_num_6.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_6.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_7.value = 7;
+	yureshijian_widget_num_7.up = &yureshijian_widget_num_6;
+	yureshijian_widget_num_7.down = &yureshijian_widget_num_8;
+	yureshijian_widget_num_7.focus_back_name = "radio";
+	yureshijian_widget_num_7.name = "RadioBox56";
+	yureshijian_widget_num_7.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_7.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_8.value = 8;
+	yureshijian_widget_num_8.up = &yureshijian_widget_num_7;
+	yureshijian_widget_num_8.down = &yureshijian_widget_num_9;
+	yureshijian_widget_num_8.focus_back_name = "radio";
+	yureshijian_widget_num_8.name = "RadioBox75";
+	yureshijian_widget_num_8.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_8.updown_cb = yure_settime_up_down_cb;
+
+
+	yureshijian_widget_num_9.value = 9;
+	yureshijian_widget_num_9.up = &yureshijian_widget_num_8;
+	yureshijian_widget_num_9.down = &yureshijian_widget_num_10;
+	yureshijian_widget_num_9.focus_back_name = "radio";
+	yureshijian_widget_num_9.name = "RadioBox74";
+	yureshijian_widget_num_9.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_9.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_10.value = 10;
+	yureshijian_widget_num_10.up = &yureshijian_widget_num_9;
+	yureshijian_widget_num_10.down = &yureshijian_widget_num_11;
+	yureshijian_widget_num_10.focus_back_name = "radio";
+	yureshijian_widget_num_10.name = "RadioBox73";
+	yureshijian_widget_num_10.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_10.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_11.value = 11;
+	yureshijian_widget_num_11.up = &yureshijian_widget_num_10;
+	yureshijian_widget_num_11.down = &yureshijian_widget_num_12;
+	yureshijian_widget_num_11.focus_back_name = "radio";
+	yureshijian_widget_num_11.name = "RadioBox72";
+	yureshijian_widget_num_11.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_11.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_12.value = 12;
+	yureshijian_widget_num_12.up = &yureshijian_widget_num_11;
+	yureshijian_widget_num_12.down = &yureshijian_widget_num_13;
+	yureshijian_widget_num_12.focus_back_name = "radio";
+	yureshijian_widget_num_12.name = "RadioBox67";
+	yureshijian_widget_num_12.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_12.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_13.value = 13;
+	yureshijian_widget_num_13.up = &yureshijian_widget_num_12;
+	yureshijian_widget_num_13.down = &yureshijian_widget_num_14;
+	yureshijian_widget_num_13.focus_back_name = "radio";
+	yureshijian_widget_num_13.name = "RadioBox66";
+	yureshijian_widget_num_13.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_13.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_14.value = 14;
+	yureshijian_widget_num_14.up = &yureshijian_widget_num_13;
+	yureshijian_widget_num_14.down = &yureshijian_widget_num_15;
+	yureshijian_widget_num_14.focus_back_name = "radio";
+	yureshijian_widget_num_14.name = "RadioBox65";
+	yureshijian_widget_num_14.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_14.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_15.value = 15;
+	yureshijian_widget_num_15.up = &yureshijian_widget_num_14;
+	yureshijian_widget_num_15.down = &yureshijian_widget_num_16;
+	yureshijian_widget_num_15.focus_back_name = "radio";
+	yureshijian_widget_num_15.name = "RadioBox64";
+	yureshijian_widget_num_15.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_15.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_16.value = 16;
+	yureshijian_widget_num_16.up = &yureshijian_widget_num_15;
+	yureshijian_widget_num_16.down = &yureshijian_widget_num_17;
+	yureshijian_widget_num_16.focus_back_name = "radio";
+	yureshijian_widget_num_16.name = "RadioBox92";
+	yureshijian_widget_num_16.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_16.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_17.value = 17;
+	yureshijian_widget_num_17.up = &yureshijian_widget_num_16;
+	yureshijian_widget_num_17.down = &yureshijian_widget_num_18;
+	yureshijian_widget_num_17.focus_back_name = "radio";
+	yureshijian_widget_num_17.name = "RadioBox91";
+	yureshijian_widget_num_17.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_17.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_18.value = 18;
+	yureshijian_widget_num_18.up = &yureshijian_widget_num_17;
+	yureshijian_widget_num_18.down = &yureshijian_widget_num_19;
+	yureshijian_widget_num_18.focus_back_name = "radio";
+	yureshijian_widget_num_18.name = "RadioBox90";
+	yureshijian_widget_num_18.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_18.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_19.value = 19;
+	yureshijian_widget_num_19.up = &yureshijian_widget_num_18;
+	yureshijian_widget_num_19.down = &yureshijian_widget_num_20;
+	yureshijian_widget_num_19.focus_back_name = "radio";
+	yureshijian_widget_num_19.name = "RadioBox89";
+	yureshijian_widget_num_19.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_19.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_20.value = 20;
+	yureshijian_widget_num_20.up = &yureshijian_widget_num_19;
+	yureshijian_widget_num_20.down = &yureshijian_widget_num_21;
+	yureshijian_widget_num_20.focus_back_name = "radio";
+	yureshijian_widget_num_20.name = "RadioBox83";
+	yureshijian_widget_num_20.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_20.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_21.value = 21;
+	yureshijian_widget_num_21.up = &yureshijian_widget_num_20;
+	yureshijian_widget_num_21.down = &yureshijian_widget_num_22;
+	yureshijian_widget_num_21.focus_back_name = "radio";
+	yureshijian_widget_num_21.name = "RadioBox82";
+	yureshijian_widget_num_21.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_21.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_22.value = 22;
+	yureshijian_widget_num_22.up = &yureshijian_widget_num_21;
+	yureshijian_widget_num_22.down = &yureshijian_widget_num_23;
+	yureshijian_widget_num_22.focus_back_name = "radio";
+	yureshijian_widget_num_22.name = "RadioBox81";
+	yureshijian_widget_num_22.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_22.updown_cb = yure_settime_up_down_cb;
+
+	yureshijian_widget_num_23.value = 23;
+	yureshijian_widget_num_23.up = &yureshijian_widget_num_22;
+	yureshijian_widget_num_23.down = NULL;
+	yureshijian_widget_num_23.focus_back_name = "radio";
+	yureshijian_widget_num_23.name = "RadioBox80";
+	yureshijian_widget_num_23.confirm_cb = yure_settime_widget_confirm_cb;
+	yureshijian_widget_num_23.updown_cb = yure_settime_up_down_cb;
+
 #if 0
 	//预约时间
 	yureshezhiLayer_0.up = NULL;
@@ -592,207 +840,6 @@ static void node_widget_init()
 	chushui_2.confirm_cb = chushui_widget_confirm_cb;
 	chushui_2.updown_cb = node_widget_up_down;
 
-	yureshijian_widget_0.up = NULL;
-	yureshijian_widget_0.down = &yureshijian_widget_num_1;
-	yureshijian_widget_0.focus_back_name = "BackgroundButton30"; //选中
-	yureshijian_widget_0.name = "BackgroundButton65";//未选中
-	yureshijian_widget_0.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_0.updown_cb = node_widget_up_down;
-
-
-
-	yureshijian_widget_num_0.value = 0;
-	yureshijian_widget_num_0.up = &yureshijian_widget_0;
-	yureshijian_widget_num_0.down = &yureshijian_widget_num_1;
-	yureshijian_widget_num_0.focus_back_name = "radio";
-	yureshijian_widget_num_0.name = "RadioBox2";
-	yureshijian_widget_num_0.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_0.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_1.value = 1;
-	yureshijian_widget_num_1.up = &yureshijian_widget_num_0;
-	yureshijian_widget_num_1.down = &yureshijian_widget_num_2;
-	yureshijian_widget_num_1.focus_back_name = "radio";
-	yureshijian_widget_num_1.name = "RadioBox5";
-	yureshijian_widget_num_1.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_1.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_2.value = 2;
-	yureshijian_widget_num_2.up = &yureshijian_widget_num_1;
-	yureshijian_widget_num_2.down = &yureshijian_widget_num_3;
-	yureshijian_widget_num_2.focus_back_name = "radio";
-	yureshijian_widget_num_2.name = "RadioBox31";
-	yureshijian_widget_num_2.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_2.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_3.value = 3;
-	yureshijian_widget_num_3.up = &yureshijian_widget_num_2;
-	yureshijian_widget_num_3.down = &yureshijian_widget_num_4;
-	yureshijian_widget_num_3.focus_back_name = "radio";
-	yureshijian_widget_num_3.name = "RadioBox32";
-	yureshijian_widget_num_3.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_3.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_4.value = 4;
-	yureshijian_widget_num_4.up = &yureshijian_widget_num_3;
-	yureshijian_widget_num_4.down = &yureshijian_widget_num_5;
-	yureshijian_widget_num_4.focus_back_name = "radio";
-	yureshijian_widget_num_4.name = "RadioBox59";
-	yureshijian_widget_num_4.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_4.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_5.value = 5;
-	yureshijian_widget_num_5.up = &yureshijian_widget_num_4;
-	yureshijian_widget_num_5.down = &yureshijian_widget_num_6;
-	yureshijian_widget_num_5.focus_back_name = "radio";
-	yureshijian_widget_num_5.name = "RadioBox58";
-	yureshijian_widget_num_5.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_5.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_6.value = 6;
-	yureshijian_widget_num_6.up = &yureshijian_widget_num_5;
-	yureshijian_widget_num_6.down = &yureshijian_widget_num_7;
-	yureshijian_widget_num_6.focus_back_name = "radio";
-	yureshijian_widget_num_6.name = "RadioBox57";
-	yureshijian_widget_num_6.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_6.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_7.value = 7;
-	yureshijian_widget_num_7.up = &yureshijian_widget_num_6;
-	yureshijian_widget_num_7.down = &yureshijian_widget_num_8;
-	yureshijian_widget_num_7.focus_back_name = "radio";
-	yureshijian_widget_num_7.name = "RadioBox56";
-	yureshijian_widget_num_7.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_7.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_8.value = 8;
-	yureshijian_widget_num_8.up = &yureshijian_widget_num_7;
-	yureshijian_widget_num_8.down = &yureshijian_widget_num_9;
-	yureshijian_widget_num_8.focus_back_name = "radio";
-	yureshijian_widget_num_8.name = "RadioBox75";
-	yureshijian_widget_num_8.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_8.updown_cb = node_widget_up_down;
-
-
-	yureshijian_widget_num_9.value = 9;
-	yureshijian_widget_num_9.up = &yureshijian_widget_num_8;
-	yureshijian_widget_num_9.down = &yureshijian_widget_num_10;
-	yureshijian_widget_num_9.focus_back_name = "radio";
-	yureshijian_widget_num_9.name = "RadioBox74";
-	yureshijian_widget_num_9.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_9.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_10.value = 10;
-	yureshijian_widget_num_10.up = &yureshijian_widget_num_9;
-	yureshijian_widget_num_10.down = &yureshijian_widget_num_11;
-	yureshijian_widget_num_10.focus_back_name = "radio";
-	yureshijian_widget_num_10.name = "RadioBox73";
-	yureshijian_widget_num_10.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_10.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_11.value = 11;
-	yureshijian_widget_num_11.up = &yureshijian_widget_num_10;
-	yureshijian_widget_num_11.down = &yureshijian_widget_num_12;
-	yureshijian_widget_num_11.focus_back_name = "radio";
-	yureshijian_widget_num_11.name = "RadioBox72";
-	yureshijian_widget_num_11.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_11.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_12.value = 12;
-	yureshijian_widget_num_12.up = &yureshijian_widget_num_11;
-	yureshijian_widget_num_12.down = &yureshijian_widget_num_13;
-	yureshijian_widget_num_12.focus_back_name = "radio";
-	yureshijian_widget_num_12.name = "RadioBox67";
-	yureshijian_widget_num_12.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_12.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_13.value = 13;
-	yureshijian_widget_num_13.up = &yureshijian_widget_num_12;
-	yureshijian_widget_num_13.down = &yureshijian_widget_num_14;
-	yureshijian_widget_num_13.focus_back_name = "radio";
-	yureshijian_widget_num_13.name = "RadioBox66";
-	yureshijian_widget_num_13.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_13.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_14.value = 14;
-	yureshijian_widget_num_14.up = &yureshijian_widget_num_13;
-	yureshijian_widget_num_14.down = &yureshijian_widget_num_15;
-	yureshijian_widget_num_14.focus_back_name = "radio";
-	yureshijian_widget_num_14.name = "RadioBox65";
-	yureshijian_widget_num_14.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_14.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_15.value = 15;
-	yureshijian_widget_num_15.up = &yureshijian_widget_num_14;
-	yureshijian_widget_num_15.down = &yureshijian_widget_num_16;
-	yureshijian_widget_num_15.focus_back_name = "radio";
-	yureshijian_widget_num_15.name = "RadioBox64";
-	yureshijian_widget_num_15.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_15.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_16.value = 16;
-	yureshijian_widget_num_16.up = &yureshijian_widget_num_15;
-	yureshijian_widget_num_16.down = &yureshijian_widget_num_17;
-	yureshijian_widget_num_16.focus_back_name = "radio";
-	yureshijian_widget_num_16.name = "RadioBox92";
-	yureshijian_widget_num_16.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_16.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_17.value = 17;
-	yureshijian_widget_num_17.up = &yureshijian_widget_num_16;
-	yureshijian_widget_num_17.down = &yureshijian_widget_num_18;
-	yureshijian_widget_num_17.focus_back_name = "radio";
-	yureshijian_widget_num_17.name = "RadioBox91";
-	yureshijian_widget_num_17.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_17.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_18.value = 18;
-	yureshijian_widget_num_18.up = &yureshijian_widget_num_17;
-	yureshijian_widget_num_18.down = &yureshijian_widget_num_19;
-	yureshijian_widget_num_18.focus_back_name = "radio";
-	yureshijian_widget_num_18.name = "RadioBox90";
-	yureshijian_widget_num_18.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_18.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_19.value = 19;
-	yureshijian_widget_num_19.up = &yureshijian_widget_num_18;
-	yureshijian_widget_num_19.down = &yureshijian_widget_num_20;
-	yureshijian_widget_num_19.focus_back_name = "radio";
-	yureshijian_widget_num_19.name = "RadioBox89";
-	yureshijian_widget_num_19.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_19.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_20.value = 20;
-	yureshijian_widget_num_20.up = &yureshijian_widget_num_19;
-	yureshijian_widget_num_20.down = &yureshijian_widget_num_21;
-	yureshijian_widget_num_20.focus_back_name = "radio";
-	yureshijian_widget_num_20.name = "RadioBox83";
-	yureshijian_widget_num_20.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_20.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_21.value = 21;
-	yureshijian_widget_num_21.up = &yureshijian_widget_num_20;
-	yureshijian_widget_num_21.down = &yureshijian_widget_num_22;
-	yureshijian_widget_num_21.focus_back_name = "radio";
-	yureshijian_widget_num_21.name = "RadioBox82";
-	yureshijian_widget_num_21.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_21.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_22.value = 22;
-	yureshijian_widget_num_22.up = &yureshijian_widget_num_21;
-	yureshijian_widget_num_22.down = &yureshijian_widget_num_23;
-	yureshijian_widget_num_22.focus_back_name = "radio";
-	yureshijian_widget_num_22.name = "RadioBox81";
-	yureshijian_widget_num_22.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_22.updown_cb = node_widget_up_down;
-
-	yureshijian_widget_num_23.value = 23;
-	yureshijian_widget_num_23.up = &yureshijian_widget_num_22;
-	yureshijian_widget_num_23.down = NULL;
-	yureshijian_widget_num_23.focus_back_name = "radio";
-	yureshijian_widget_num_23.name = "RadioBox80";
-	yureshijian_widget_num_23.confirm_cb = yure_settime_widget_confirm_cb;
-	yureshijian_widget_num_23.updown_cb = node_widget_up_down;
 #endif
 
 	//初始一次按键超时数据

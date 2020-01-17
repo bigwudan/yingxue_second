@@ -163,6 +163,19 @@ static void yureLayer()
 	ituTextSetString(t_widget, t_buf);
 }
 
+//预热时间设置
+static void yureshijianLayer()
+{
+	//初始化 屏蔽所有的显示
+	ITUWidget *t_widget = NULL;
+	curr_node_widget = &yureshijian_widget_0;
+	//默认选中第一个
+	t_widget = ituSceneFindWidget(&theScene, curr_node_widget->focus_back_name);
+	ituWidgetSetVisible(t_widget, true);
+	t_widget = ituSceneFindWidget(&theScene, curr_node_widget->name);
+	ituWidgetSetVisible(t_widget, false);
+
+}
 
 //樱雪每个页面初始化
 bool YX_MenuOnEnter(ITUWidget* widget, char* param)
@@ -173,7 +186,7 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 
 	//welcome页面
 	if (strcmp(widget->name, "welcom") == 0){
-		//ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
+		ituLayerGoto(ituSceneFindWidget(&theScene, "yureshijianLayer"));
 	}
 	//MainLayer 首页
 	else if (strcmp(widget->name, "MainLayer") == 0){
@@ -183,7 +196,11 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 	else if (strcmp(widget->name, "yureLayer") == 0){
 		yureLayer();
 	}
-
+	//预热时间设置
+	else if (strcmp(widget->name, "yureshijianLayer") == 0){
+		yureshijianLayer();
+	}
+	return true;
 
 }
 
@@ -291,6 +308,7 @@ bool MainLayerOnTimer(ITUWidget* widget, char* param)
 //开机画面定时器
 bool WelcomeOnTimer(ITUWidget* widget, char* param)
 {
+	return true;
 	//是否已经动作
 	static unsigned char flag;
 	//第一次上电
