@@ -166,16 +166,6 @@ struct yingxue_base_tag{
 	unsigned char is_err;//是否故障
 	
 };
-
-//获取当前时间
-int get_rtc_time(struct  timeval *dst, unsigned char *zone);
-
-//设置当前时间
-void set_rtc_time(unsigned char hour, unsigned char min);
-
-//计算下次的预约时间
-void calcNextYure(int *beg, int *end);
-
 enum send_uart_state
 {
 	OPEN_CMD, //开机
@@ -193,7 +183,31 @@ struct uart_data_tag{
 
 #define UART_PORT       ITP_DEVICE_UART3
 #define UART_DEVICE     itpDeviceUart3	
+#define MAX_CHAIN_NUM 50
 
+//环形队列
+struct chain_list_tag{
+	unsigned char rear; //尾结点
+	unsigned char front; //头结点
+	unsigned char count; //当前数量
+	unsigned char buf[MAX_CHAIN_NUM];
+};
+
+//获取当前时间
+int get_rtc_time(struct  timeval *dst, unsigned char *zone);
+
+//设置当前时间
+void set_rtc_time(unsigned char hour, unsigned char min);
+
+//计算下次的预约时间
+void calcNextYure(int *beg, int *end);
+
+//发送命令
+void sendCmdToCtr(unsigned char cmd, unsigned char data_1, unsigned char data_2, unsigned char data_3, unsigned char data_4, enum send_uart_state state);
+
+//组合数据
+void processCmdToCtrData(unsigned char cmd, unsigned char data_1,
+	unsigned char data_2, unsigned char data_3, unsigned char data_4, unsigned char *dst);
 
 #ifdef __cplusplus
 }
