@@ -342,7 +342,7 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 
 	//welcome页面
 	if (strcmp(widget->name, "welcom") == 0){
-		ituLayerGoto(ituSceneFindWidget(&theScene, "moshiLayer"));
+		
 	}
 	//MainLayer 首页
 	else if (strcmp(widget->name, "MainLayer") == 0){
@@ -462,12 +462,7 @@ bool MainLayerOnTimer(ITUWidget* widget, char* param)
 			}
 		
 		}
-	
-	
 	}
-	
-
-
 	get_rtc_time(&last_tm, NULL);
 	return true;
 }
@@ -475,19 +470,24 @@ bool MainLayerOnTimer(ITUWidget* widget, char* param)
 //开机画面定时器
 bool WelcomeOnTimer(ITUWidget* widget, char* param)
 {
-	return true;
+	
 	//是否已经动作
 	static unsigned char flag;
 	//第一次上电
 	if (yingxue_base.run_state == 0){
 		sleep(2);
-		ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
+		//开机
+		SEND_OPEN_CMD();
 		yingxue_base.run_state = 1;
+		ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
+		
 	}
 	//关机
 	else if (yingxue_base.run_state == 2){
 		if (flag != 2){
 			sleep(2);
+			//关机
+			SEND_CLOSE_CMD();
 			ioctl(ITP_DEVICE_BACKLIGHT, ITP_IOCTL_OFF, NULL);
 			flag = 2;
 		}
@@ -495,10 +495,13 @@ bool WelcomeOnTimer(ITUWidget* widget, char* param)
 	else if (yingxue_base.run_state == 1){
 		if (flag != 1){
 			ioctl(ITP_DEVICE_BACKLIGHT, ITP_IOCTL_ON, NULL);
+			//开机
+			SEND_OPEN_CMD();
 			sleep(2);
 			ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
 		}
 	}
+	return true;
 }
 
 //ERROnTimer

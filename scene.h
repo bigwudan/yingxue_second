@@ -171,7 +171,7 @@ enum send_uart_state
 	OPEN_CMD, //开机
 	CLOSE_CMD, //关机
 	RUN_YURE, //开预热
-	CLOSE_YURE, //关预热
+	STOP_YURE, //关预热
 	SET_TEMP, //设置温度
 };
 
@@ -181,9 +181,22 @@ struct uart_data_tag{
 	enum send_uart_state state; //状态  0正常 1错误 2已经完成
 };
 
+//串口
 #define UART_PORT       ITP_DEVICE_UART3
 #define UART_DEVICE     itpDeviceUart3	
 #define MAX_CHAIN_NUM 50
+
+//开机
+#define SEND_OPEN_CMD() do{sendCmdToCtr(0x03, 0x01, 0x00, 0x00, 0x00, OPEN_CMD);}while(0)
+//关机
+#define SEND_CLOSE_CMD() do{sendCmdToCtr(0x03, 0x00, 0x00, 0x00, 0x00, CLOSE_CMD);}while(0)
+
+//开始预热 预热	命令9	(0 - 预热关 2 - 循环预热)	 随机	预热回差设置	 随机
+#define SEND_OPEN_YURE_CMD() do{sendCmdToCtr(0x09, 0x02, 0x00, yingxue_base.huishui_temp, 0x00, RUN_YURE);}while(0)
+//结束预热
+#define SEND_CLOSE_YURE_CMD() do{sendCmdToCtr(0x09, 0x00, 0x00, yingxue_base.huishui_temp, 0x00, STOP_YURE);}while(0)
+
+
 
 //环形队列
 struct chain_list_tag{
