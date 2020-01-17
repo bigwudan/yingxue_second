@@ -483,6 +483,8 @@ static void main_widget_up_down_cb(struct node_widget *widget, unsigned char sta
 			sprintf(t_buf, "%d", count_idx);
 			yingxue_base.shezhi_temp = count_idx;
 			ituTextSetString(t_widget, t_buf);
+			//设置温度 模式设置	4	模式设置	设置温度	定升设定
+			sendCmdToCtr(0x04, 0x00, count_idx, 0x00, 0x00, SET_TEMP);
 		}
 	}
 }
@@ -503,17 +505,15 @@ static void yure_widget_confirm_cb(struct node_widget *widget, unsigned char sta
 			yingxue_base.yure_mode = 0;
 			memset(&yingxue_base.yure_endtime, 0, sizeof(struct timeval));
 			//发送取消
-			
-		
+			SEND_CLOSE_YURE_CMD();
 		}
 		else{
 			//发送开始
-			
 			yingxue_base.yure_mode = 1;
 			get_rtc_time(&yingxue_base.yure_begtime, NULL);
 			//2个小时 
 			yingxue_base.yure_endtime.tv_sec = yingxue_base.yure_begtime.tv_sec + 60 * 60 * 2;
-
+			SEND_OPEN_YURE_CMD();
 
 		}
 		t_widget = ituSceneFindWidget(&theScene, "MainLayer");
@@ -526,12 +526,14 @@ static void yure_widget_confirm_cb(struct node_widget *widget, unsigned char sta
 			yingxue_base.yure_mode = 0;
 			memset(&yingxue_base.yure_endtime, 0, sizeof(struct timeval));
 			//发送取消
+			SEND_CLOSE_YURE_CMD();
 		}
 		else{
 			yingxue_base.yure_mode = 2;
 			get_rtc_time(&yingxue_base.yure_begtime, NULL);
 			memset(&yingxue_base.yure_endtime, 0, sizeof(struct timeval));
 			//发送预热开始
+			SEND_OPEN_YURE_CMD();
 		}
 		t_widget = ituSceneFindWidget(&theScene, "MainLayer");
 		ituLayerGoto((ITULayer *)t_widget);
@@ -547,6 +549,7 @@ static void yure_widget_confirm_cb(struct node_widget *widget, unsigned char sta
 			yingxue_base.yure_mode = 0;
 			memset(&yingxue_base.yure_endtime, 0, sizeof(struct timeval));
 			//发送取消
+			SEND_CLOSE_YURE_CMD();
 		}
 		else{
 			yingxue_base.yure_mode = 3;
@@ -720,7 +723,6 @@ static void yure_yureshezhiLayer_up_down_cb(struct node_widget *widget, unsigned
 static void moshi_widget_confirm_cb(struct node_widget *widget, unsigned char state)
 {
 	//初始化一个控制板数据
-
 	ITUWidget *t_widget = NULL;
 	if (strcmp(widget->name, "BackgroundButton68") == 0){
 		t_widget = ituSceneFindWidget(&theScene, "MainLayer");
@@ -728,33 +730,28 @@ static void moshi_widget_confirm_cb(struct node_widget *widget, unsigned char st
 	}
 	else if (strcmp(widget->name, "moshi_BackgroundButton10") == 0){
 		//发送模式命令就发指令 4 ： 模式设置  ： 默认 0 ，设置温度 ： XX ， 定升设定  ： 默认值时发0 
-		
+		sendCmdToCtr(0x04, 0x00, yingxue_base.normal_moshi.temp, 0x00, 0x00, SET_TEMP);
 		yingxue_base.moshi_mode = 1;
 		t_widget = ituSceneFindWidget(&theScene, "MainLayer");
 		ituLayerGoto((ITULayer *)t_widget);
 	}
 	else if (strcmp(widget->name, "moshi_BackgroundButton11") == 0){
-
 		//发送模式命令就发指令 4 ： 模式设置  ： 默认 0 ，设置温度 ： XX ， 定升设定  ： 默认值时发0 
-		
-		
-
+		sendCmdToCtr(0x04, 0x00, yingxue_base.super_moshi.temp, 0x00, 0x00, SET_TEMP);
 		yingxue_base.moshi_mode = 2;
 		t_widget = ituSceneFindWidget(&theScene, "MainLayer");
 		ituLayerGoto((ITULayer *)t_widget);
 	}
 	else if (strcmp(widget->name, "moshi_BackgroundButton12") == 0){
-
 		//发送模式命令就发指令 4 ： 模式设置  ： 默认 0 ，设置温度 ： XX ， 定升设定  ： 默认值时发0 
-		
+		sendCmdToCtr(0x04, 0x00, yingxue_base.eco_moshi.temp, 0x00, 0x00, SET_TEMP);
 		yingxue_base.moshi_mode = 3;
 		t_widget = ituSceneFindWidget(&theScene, "MainLayer");
 		ituLayerGoto((ITULayer *)t_widget);
 	}
 	else if (strcmp(widget->name, "moshi_BackgroundButton13") == 0){
-
 		//发送模式命令就发指令 4 ： 模式设置  ： 默认 0 ，设置温度 ： XX ， 定升设定  ： 默认值时发0 
-		
+		sendCmdToCtr(0x04, 0x00, yingxue_base.fruit_moshi.temp, 0x00, 0x00, SET_TEMP);
 		yingxue_base.moshi_mode = 4;
 		t_widget = ituSceneFindWidget(&theScene, "MainLayer");
 		ituLayerGoto((ITULayer *)t_widget);
@@ -1261,8 +1258,6 @@ static void node_widget_init()
 	chushui_2.confirm_cb = chushui_widget_confirm_cb;
 	chushui_2.updown_cb = chushui_up_down_cb;
 
-
-
 	//初始一次按键超时数据
 	key_down_process();
 }
@@ -1296,7 +1291,7 @@ static void over_time_process()
 }
 
 //发送命令到控制板
-void sendCmdToCtr(unsigned char cmd, unsigned char data_1, unsigned char data_2, unsigned char data_3, unsigned char data_4, enum send_uart_state state)
+void sendCmdToCtr(unsigned char cmd, unsigned char data_1, unsigned char data_2, unsigned char data_3, unsigned char data_4, enum main_pthread_mq_state state)
 {
 	struct uart_data_tag mq_data;
 	mq_data.state = state;
@@ -1333,9 +1328,221 @@ void processCmdToCtrData(unsigned char cmd, unsigned char data_1,
 }
 
 
+//分析数据
+unsigned char
+process_data(struct uart_data_tag *dst, struct chain_list_tag *p_chain_list)
+{
+	unsigned char flag = 0;
+	unsigned short crc = 0;
+	unsigned char buf = 0;
+
+	while (out_chain_list(p_chain_list, &buf)){
+		//上一个数据错误，等待一下个0xEA
+		if (dst->state == 1){
+			//下一个0xEA 重新计算
+			if (buf == 0xEA){
+				(dst->buf_data)[dst->count++] = buf;
+				dst->state = 0;
+			}
+		}
+		else{
+			dst->buf_data[dst->count++] = buf;
+			//接受完17个数据 结束
+			if (dst->count == 17){
+				//检查crc 
+				//检查crc 
+				crc = crc16_ccitt(dst->buf_data + 1, 14);
+				if (((unsigned char)(crc >> 8) == dst->buf_data[15]) &&
+					((unsigned char)crc == dst->buf_data[16])
+					){
+					flag = 0;
+				}
+				else{
+					flag = 1;
+				}
+#ifdef _WIN32
+				//测试方便去掉crc
+				flag = 0;
+#endif
+				//如果出错
+				if (flag == 1){
+					dst->state = 1;
+					dst->count = 0;
+				}
+				else{
+					dst->count = 0;
+					dst->state = 2;
+					return 0;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+
+
+//分析得到的数组
+void process_frame(struct main_uart_chg *dst, const unsigned char *src)
+{
+	src = src + 2;
+	//判断第几个帧
+	//第0帧
+	if ((*src & 0x0f) == 0x00){
+
+		//初始化
+		dst->state_show = 0;
+
+		//[2]主板信息   [0][0] 
+		src += 2;
+
+		//[0][1]
+		//得到主机状态
+		dst->machine_state = *src & 0x03;
+		//判断是否故障
+		if ((*src & 0x04) == 0){
+			dst->is_err = 0;
+		}
+		else{
+			dst->is_err = 1;
+		}
+		//判断状态 流水
+		if (*src & 0x10){
+			dst->state_show = 0x01;
+			//风机
+		}
+		if (*src & 0x20){
+			dst->state_show = dst->state_show | 0x2;
+			//火焰
+		}
+		if (*src & 0x40){
+			dst->state_show = dst->state_show | 0x4;
+			//风压
+		}
+		if (*src & 0x80){
+			dst->state_show = dst->state_show | 0x8;
+		}
+
+		//设置温度 [0][4]
+		src += 3;
+		dst->shezhi_temp = *src++;
+
+		//出水温度[0][5]
+		dst->chushui_temp = *src++;
+
+		//进水温度[0][6]
+		dst->jinshui_temp = *src++;
+
+		//错误代码或者比例阀电流
+		src++;
+		dst->err_no = *src++;
+		//第1帧
+	}
+	else if ((*src & 0x0f) == 0x01){
+
+
+		//第2帧
+	}
+	else if ((*src & 0x0f) == 0x02){
+
+
+	}
+	else if ((*src & 0x0f) == 0x03){
+
+
+	}
+}
+
+
+#ifdef _WIN32
+//win虚拟机测试
+static unsigned char win_test()
+{
+	/*  0xEA, 0x1B, 0x10, 0x4D, 0x00, 0x00, 0x00, 0x2D, 0x00, 0x00, 0x00, 0x00, 0x41, 0x00, 0x00, 0x79, 0x53,
+	0xEA, 0x1B, 0x11, 0x01, 0x00, 0x00, 0x00, 0x1E, 0x0A, 0x2A, 0x28, 0x26, 0x2A, 0x00, 0x00, 0x48, 0x35,
+	0xEA, 0x1B, 0x12, 0x00, 0xCD, 0x80, 0x9E, 0x1E, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x03, 0x05, 0x4B,
+	0xEA, 0x1B, 0x13, 0x00, 0x00, 0x05, 0x40, 0x50, 0x00, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0xBE, 0x5F,*/
+	unsigned char test_buf[68] = {
+		//[0][0] //[0][1]                                                 //erno
+		0xEA, 0x1B, 0x10, 0x4D, 0x00, 0x00, 0x00, 0x2D, 0x10, 0x00, 0x00, 0x00, 0x41, 0x00, 0x00, 0x79, 0x53,
+		0xEA, 0x1B, 0x11, 0x01, 0x00, 0x00, 0x00, 0x1E, 0x0A, 0x2A, 0x28, 0x26, 0x2A, 0x00, 0x00, 0x48, 0x35,
+		0xEA, 0x1B, 0x12, 0x00, 0xCD, 0x80, 0x9E, 0x1E, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x03, 0x05, 0x4B,
+		0xEA, 0x1B, 0x13, 0x00, 0x00, 0x05, 0x40, 0x50, 0x00, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0xBE, 0x5F,
+	};
+	static int idx;
+	unsigned char res;
+
+	res = test_buf[idx++];
+	if (idx == 68){
+		idx = 0;
+	}
+	return res;
+}
+#endif
+
 //线程串口回调函数
 static void* UartFunc(void* arg)
 {
+	//主线程发送消息队列
+	struct main_pthread_mq_tag main_pthread_mq;
+	//缓存数据
+	struct uart_data_tag uart_data;
+
+	//线程数据
+	struct main_uart_chg main_uart_chg_data;
+
+	uint8_t rece_buf[10];
+	int len = 0;
+	int flag = 0;
+	int is_has = 0;
+	//默认应答
+	uint8_t texBufArray[11] = { 0 };
+	uint8_t backBufArray[11] = { 0xEB, 0x1B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xD8, 0x2A };
+	while (1){
+		memset(rece_buf, 0, sizeof(rece_buf));
+		//如果是win虚拟测试
+#ifdef _WIN32
+		len = 1;
+		rece_buf[0] = win_test();
+#else
+		len = read(TEST_PORT, getstr1, sizeof(getstr1));
+#endif
+		//如果串口有数据
+		if (len > 0){
+			//写入环形缓存
+			for (int i = 0; i < len; i++){
+				flag = in_chain_list(&chain_list, rece_buf[i]);
+			}
+			process_data(&uart_data, &chain_list);
+			//已经完成
+			if (uart_data.state == 2){
+				//打印结束
+				/*LOG_RECE_UART(uart_data.buf_data);
+				printf("\nend\n");*/
+				is_has = 0;
+				uart_data.state = 0;
+				uart_data.count = 0;
+				//分析收到的数
+				process_frame(&main_uart_chg_data, uart_data.buf_data);
+				flag = mq_receive(uartQueue, &main_pthread_mq, sizeof(struct main_pthread_mq_tag), NULL);
+				//如果存在信息就发送消息
+				if (flag > 0){
+					memcpy(texBufArray, main_pthread_mq.s_data, sizeof(texBufArray));
+					is_has = 1;
+				}
+				//如果有指令需要发出
+				if (is_has){
+					//LOG_WRITE_UART(texBufArray);
+					write(UART_PORT, texBufArray, sizeof(texBufArray));
+				}
+				//没有指令就应答
+				else{
+					//LOG_WRITE_UART(backBufArray);
+					write(UART_PORT, backBufArray, sizeof(texBufArray));
+				}
+			}
+		}
+	}
 	return NULL;
 }
 
@@ -1751,7 +1958,7 @@ int SceneRun(void)
 	struct mq_attr mq_uart_attr;
 	mq_uart_attr.mq_flags = 0;
 	mq_uart_attr.mq_maxmsg = 10;
-	mq_uart_attr.mq_msgsize = sizeof(struct uart_data_tag);
+	mq_uart_attr.mq_msgsize = sizeof(struct main_pthread_mq_tag);
 	uartQueue = mq_open("scene", O_CREAT | O_NONBLOCK, 0644, &mq_uart_attr);
 
 	

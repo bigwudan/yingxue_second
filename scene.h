@@ -166,7 +166,7 @@ struct yingxue_base_tag{
 	unsigned char is_err;//是否故障
 	
 };
-enum send_uart_state
+enum main_pthread_mq_state
 {
 	OPEN_CMD, //开机
 	CLOSE_CMD, //关机
@@ -175,11 +175,39 @@ enum send_uart_state
 	SET_TEMP, //设置温度
 };
 
+//主线程通过消息队列传送数据
+struct main_pthread_mq_tag{
+	unsigned char s_data[11];
+	enum main_pthread_mq_state state;			// 0 控制板数据 1开机命令 2关机命令
+};
+
 //串口的数据
 struct uart_data_tag{
-	unsigned char buf_data[11]; //当前缓存
-	enum send_uart_state state; //状态  0正常 1错误 2已经完成
+	unsigned char count;//当前数据数
+	unsigned char buf_data[20]; //当前缓存
+	unsigned char state; //状态  0正常 1错误 2已经完成
 };
+
+//主页串口改变显示
+struct main_uart_chg
+{
+	//第0位 有水  第1位 风机 第2位 火焰 第3位 风压
+	unsigned char state_show;
+	//设置温度
+	unsigned char shezhi_temp;
+	//出水温度
+	unsigned char chushui_temp;
+	//进水温度
+	unsigned char jinshui_temp;
+	//错误代码
+	unsigned char err_no;
+	//主机状态 0关机 1待机 2正常燃烧 3
+	unsigned char machine_state;
+	//是否故障
+	unsigned char is_err;
+
+};
+
 
 //串口
 #define UART_PORT       ITP_DEVICE_UART3
@@ -221,6 +249,13 @@ void sendCmdToCtr(unsigned char cmd, unsigned char data_1, unsigned char data_2,
 //组合数据
 void processCmdToCtrData(unsigned char cmd, unsigned char data_1,
 	unsigned char data_2, unsigned char data_3, unsigned char data_4, unsigned char *dst);
+
+#define LOG_WRITE_UART(arr) do{\
+								for(int i=0; i<11;i++) \
+									printf("%02X ", arr[i]);\
+																}while(0)
+#define LOG_RECE_UART(arr) do{for(int i=0; i < 17; i++) printf("%02X ", arr[i]); }while(0)
+
 
 #ifdef __cplusplus
 }
