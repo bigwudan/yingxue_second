@@ -124,6 +124,7 @@ enum main_pthread_mq_state
 	RUN_YURE=3, //开预热
 	STOP_YURE=4, //关预热
 	SET_TEMP=5, //设置温度
+	SET_CHUCHANG //出厂设置
 };
 
 //控件结构体

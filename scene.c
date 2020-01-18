@@ -898,10 +898,119 @@ static void chushui_up_down_cb(struct node_widget *widget, unsigned char state)
 //设置出厂模式
 static void layer1_widget_confirm_cb(struct node_widget *widget, unsigned char state)
 {
+	ITUWidget *t_widget = NULL;
+	char *t_buf;
+	int num = 0;
+	t_widget = ituSceneFindWidget(&theScene, "MainLayer");
+	if (strcmp(widget->name, "BackgroundButton60") == 0){
+		ituLayerGoto((ITULayer *)t_widget);
+	}
+	//支持长按
+	else if (widget->type == 1){
+		if (widget->state == 0){
+			//锁定
+			widget->state = 1;
+			t_widget = ituSceneFindWidget(&theScene, widget->checked_back_name);
+			ituWidgetSetVisible(t_widget, true);
+		}
+		else{
+			//解除锁定
+			widget->state = 0;
+			t_widget = ituSceneFindWidget(&theScene, widget->checked_back_name);
+			ituWidgetSetVisible(t_widget, false);
+		}
+	}
+	
+
+
 }
 
 static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
 {
+
+	struct node_widget *t_node_widget = NULL;
+	struct ITUWidget *t_widget = NULL;
+	char t_buf[20] = { 0 };
+	unsigned char t_num = 0;
+	if (widget->state == 1){ //如果已经锁定
+		//lock_widget_up_down(widget, state);
+		//pa 对应 FA
+		//(unsigned char cmd, unsigned char data_1, unsigned char data_2, unsigned char data_3, unsigned char data_4, enum main_pthread_mq_state state)
+		if (strcmp(widget->name, "Text22") == 0){
+			t_widget = ituSceneFindWidget(&theScene, "Text22");
+			t_num = atoi(ituTextGetString((ITUText*)t_widget));
+			sendCmdToCtr(0x10, t_num, 0, 0, 0, SET_CHUCHANG);
+		}
+		else if (strcmp(widget->name, "Text90") == 0){
+			t_widget = ituSceneFindWidget(&theScene, "Text90");
+			t_num = atoi(ituTextGetString((ITUText*)t_widget));
+			sendCmdToCtr(0x13, t_num, 0, 0, 0, SET_CHUCHANG);
+		}
+		else if (strcmp(widget->name, "Text33") == 0){
+			t_widget = ituSceneFindWidget(&theScene, "Text33");
+			t_num = atoi(ituTextGetString((ITUText*)t_widget));
+			sendCmdToCtr(0x11, t_num, 0, 0, 0, SET_CHUCHANG);
+		}
+		else if (strcmp(widget->name, "Text82") == 0){
+			t_widget = ituSceneFindWidget(&theScene, "Text82");
+			t_num = atoi(ituTextGetString((ITUText*)t_widget));
+		}
+		else if (strcmp(widget->name, "Text39") == 0){
+			t_widget = ituSceneFindWidget(&theScene, "Text39");
+			t_num = atoi(ituTextGetString((ITUText*)t_widget));
+			sendCmdToCtr(0x12, t_num, 0, 0, 0, SET_CHUCHANG);
+			
+		}
+		//空
+		else if (strcmp(widget->name, "Text80") == 0){
+			t_widget = ituSceneFindWidget(&theScene, "Text80");
+			t_num = atoi(ituTextGetString((ITUText*)t_widget));
+		}
+		else if (strcmp(widget->name, "Text45") == 0){
+			t_widget = ituSceneFindWidget(&theScene, "Text45");
+			t_num = atoi(ituTextGetString((ITUText*)t_widget));
+			sendCmdToCtr(0x13, t_num, 0, 0, 0, SET_CHUCHANG);
+		}
+		else if (strcmp(widget->name, "Text73") == 0){
+			t_widget = ituSceneFindWidget(&theScene, "Text73");
+			t_num = atoi(ituTextGetString((ITUText*)t_widget));
+			yingxue_base.huishui_temp = t_num;
+		}
+		else if (strcmp(widget->name, "Text58") == 0){
+			t_widget = ituSceneFindWidget(&theScene, "Text58");
+			t_num = atoi(ituTextGetString((ITUText*)t_widget));
+			sendCmdToCtr(0x14, t_num, 0, 0, 0, SET_CHUCHANG);
+		}
+		else if (strcmp(widget->name, "Text65") == 0){
+			t_widget = ituSceneFindWidget(&theScene, "Text65");
+			t_num = atoi(ituTextGetString((ITUText*)t_widget));
+		}
+		if (state == 0){
+			t_num = t_num + 1;
+		}
+		else{
+			t_num = t_num - 1;
+		}
+		sprintf(t_buf, "%d", t_num);
+		ituTextSetString(t_widget, t_buf);
+
+	}
+	else{
+		if (state == 0){
+			if (widget->up)
+				t_node_widget = widget->up;
+		}
+		else{
+			if (widget->down){
+				t_node_widget = widget->down;
+			}
+		}
+
+		if (t_node_widget){
+			command_widget_up_down(t_node_widget);
+		}
+	}
+
 }
 
 
@@ -1350,6 +1459,7 @@ static void node_widget_init()
 	layer1_6.name = "Text22";
 	layer1_6.confirm_cb = layer1_widget_confirm_cb;
 	layer1_6.updown_cb = layer1_up_down_cb;
+	layer1_6.type = 1;
 
 	//dh
 	layer1_7.up = &layer1_6;
@@ -1358,6 +1468,7 @@ static void node_widget_init()
 	layer1_7.name = "Text90";
 	layer1_7.confirm_cb = layer1_widget_confirm_cb;
 	layer1_7.updown_cb = layer1_up_down_cb;
+	layer1_7.type = 1;
 
 
 
@@ -1370,6 +1481,7 @@ static void node_widget_init()
 	layer1_8.name = "Text33";
 	layer1_8.confirm_cb = layer1_widget_confirm_cb;
 	layer1_8.updown_cb = layer1_up_down_cb;
+	layer1_8.type = 1;
 
 	//fy
 	layer1_9.up = &layer1_8;
@@ -1378,6 +1490,7 @@ static void node_widget_init()
 	layer1_9.name = "Text82";
 	layer1_9.confirm_cb = layer1_widget_confirm_cb;
 	layer1_9.updown_cb = layer1_up_down_cb;
+	layer1_9.type = 1;
 
 
 	//pl
@@ -1387,6 +1500,7 @@ static void node_widget_init()
 	layer1_10.name = "Text39";
 	layer1_10.confirm_cb = layer1_widget_confirm_cb;
 	layer1_10.updown_cb = layer1_up_down_cb;
+	layer1_10.type = 1;
 
 	//fd
 	layer1_11.up = &layer1_10;
@@ -1395,6 +1509,7 @@ static void node_widget_init()
 	layer1_11.name = "Text80";
 	layer1_11.confirm_cb = layer1_widget_confirm_cb;
 	layer1_11.updown_cb = layer1_up_down_cb;
+	layer1_11.type = 1;
 
 	//DH
 	layer1_12.up = &layer1_11;
@@ -1403,7 +1518,7 @@ static void node_widget_init()
 	layer1_12.name = "Text45";
 	layer1_12.confirm_cb = layer1_widget_confirm_cb;
 	layer1_12.updown_cb = layer1_up_down_cb;
-
+	layer1_12.type = 1;
 
 
 	//hs
@@ -1413,6 +1528,7 @@ static void node_widget_init()
 	layer1_13.name = "Text73";
 	layer1_13.confirm_cb = layer1_widget_confirm_cb;
 	layer1_13.updown_cb = layer1_up_down_cb;
+	layer1_13.type = 1;
 
 
 	//hi
@@ -1422,7 +1538,7 @@ static void node_widget_init()
 	layer1_14.name = "Text58";
 	layer1_14.confirm_cb = layer1_widget_confirm_cb;
 	layer1_14.updown_cb = layer1_up_down_cb;
-
+	layer1_14.type = 1;
 
 	//ed
 	layer1_15.up = &layer1_14;
@@ -1431,6 +1547,7 @@ static void node_widget_init()
 	layer1_15.name = "Text65";
 	layer1_15.confirm_cb = layer1_widget_confirm_cb;
 	layer1_15.updown_cb = layer1_up_down_cb;
+	
 
 
 
