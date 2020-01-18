@@ -24,7 +24,7 @@
     #define DOUBLE_KEY_INTERVAL 200
 #endif
 
-//#define FPS_ENABLE
+#define FPS_ENABLE
 #define DOUBLE_KEY_ENABLE
 
 #define GESTURE_THRESHOLD           40
@@ -76,7 +76,6 @@ static ITUIcon      *cursorIcon;
 #endif
 
 extern void ScreenSetDoubleClick(void);
-
 //樱雪
 static const unsigned short crc16tab[256] = {
 	0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
@@ -188,6 +187,25 @@ struct node_widget moshiLayer_4;
 struct node_widget chushui_0;
 struct node_widget chushui_1;
 struct node_widget chushui_2;
+
+//出厂设置
+struct node_widget layer1_0; //返回按键
+struct node_widget layer1_1; //水流
+struct node_widget layer1_2; //火焰
+struct node_widget layer1_3; //风机
+struct node_widget layer1_4; //出水温度
+struct node_widget layer1_5; //风速
+struct node_widget layer1_6; //pa
+struct node_widget layer1_7; //dh
+struct node_widget layer1_8; //ph
+struct node_widget layer1_9;//fy
+struct node_widget layer1_10;//pl
+struct node_widget layer1_11;//fd
+struct node_widget layer1_12;//pd
+struct node_widget layer1_13;//hs
+struct node_widget layer1_14;//hi
+struct node_widget layer1_15;//ed
+
 
 //最后一次活动的时间
 struct timeval last_down_time;
@@ -319,7 +337,6 @@ int get_rtc_time(struct  timeval *dst, unsigned char *zone)
 	dst->tv_usec = 0;
 	return 1;
 }
-
 //锁定上下移动
 static void lock_widget_up_down(struct node_widget *widget, unsigned char state)
 {
@@ -420,14 +437,12 @@ static void command_widget_up_down(struct node_widget *t_node_widget)
 	}
 
 }
-
-
 //主页面确定回调事件
 //@param widget 点击控件
 //@param state 参数
 static void main_widget_confirm_cb(struct node_widget *widget, unsigned char state)
 {
-	
+
 	//只有在0状态，第一点击，上下调整
 	if (yingxue_base.adjust_temp_state == 0){
 		yingxue_base.adjust_temp_state = 3;
@@ -450,7 +465,6 @@ static void main_widget_confirm_cb(struct node_widget *widget, unsigned char sta
 	}
 }
 
-//主页面上下回调事件
 static void main_widget_up_down_cb(struct node_widget *widget, unsigned char state)
 {
 	struct node_widget *t_node_widget = NULL;
@@ -881,6 +895,16 @@ static void chushui_up_down_cb(struct node_widget *widget, unsigned char state)
 }
 
 
+//设置出厂模式
+static void layer1_widget_confirm_cb(struct node_widget *widget, unsigned char state)
+{
+}
+
+static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
+{
+}
+
+
 //按键时间发生时的触发事件
 static void key_down_process()
 {
@@ -1262,16 +1286,168 @@ static void node_widget_init()
 	chushui_2.confirm_cb = chushui_widget_confirm_cb;
 	chushui_2.updown_cb = chushui_up_down_cb;
 
+	//出厂设置
+	//返回按键
+	layer1_0.up = NULL;
+	layer1_0.down = &layer1_1;
+	layer1_0.focus_back_name = NULL;
+	layer1_0.name = "BackgroundButton60";
+	layer1_0.confirm_cb = layer1_widget_confirm_cb;
+	layer1_0.updown_cb = layer1_up_down_cb;
+
+
+
+
+
+	//水流
+	layer1_1.up = &layer1_0;
+	layer1_1.down = &layer1_2;
+	layer1_1.focus_back_name = NULL;
+	layer1_1.name = "Background99";
+	layer1_1.confirm_cb = layer1_widget_confirm_cb;
+	layer1_1.updown_cb = layer1_up_down_cb;
+
+
+
+	//火焰
+	layer1_2.up = &layer1_1;
+	layer1_2.down = &layer1_3;
+	layer1_2.focus_back_name = NULL;
+	layer1_2.name = "Background101";
+	layer1_2.confirm_cb = layer1_widget_confirm_cb;
+	layer1_2.updown_cb = layer1_up_down_cb;
+
+
+	//风机
+	layer1_3.up = &layer1_2;
+	layer1_3.down = &layer1_4;
+	layer1_3.focus_back_name = NULL;
+	layer1_3.name = "Background103";
+	layer1_3.confirm_cb = layer1_widget_confirm_cb;
+	layer1_3.updown_cb = layer1_up_down_cb;
+
+	//出水温度
+	layer1_4.up = &layer1_3;
+	layer1_4.down = &layer1_5;
+	layer1_4.focus_back_name = NULL;
+	layer1_4.name = "Text94";
+	layer1_4.confirm_cb = layer1_widget_confirm_cb;
+	layer1_4.updown_cb = layer1_up_down_cb;
+
+
+	//风速
+	layer1_5.up = &layer1_4;
+	layer1_5.down = &layer1_6;
+	layer1_5.focus_back_name = NULL;
+	layer1_5.name = "Text96";
+	layer1_5.confirm_cb = layer1_widget_confirm_cb;
+	layer1_5.updown_cb = layer1_up_down_cb;
+
+	//pa
+	layer1_6.up = &layer1_5;
+	layer1_6.down = &layer1_7;
+	layer1_6.focus_back_name = NULL;
+	layer1_6.name = "Text22";
+	layer1_6.confirm_cb = layer1_widget_confirm_cb;
+	layer1_6.updown_cb = layer1_up_down_cb;
+
+	//dh
+	layer1_7.up = &layer1_6;
+	layer1_7.down = &layer1_8;
+	layer1_7.focus_back_name = NULL;
+	layer1_7.name = "Text90";
+	layer1_7.confirm_cb = layer1_widget_confirm_cb;
+	layer1_7.updown_cb = layer1_up_down_cb;
+
+
+
+
+
+	//ph
+	layer1_8.up = &layer1_7;
+	layer1_8.down = &layer1_9;
+	layer1_8.focus_back_name = NULL;
+	layer1_8.name = "Text33";
+	layer1_8.confirm_cb = layer1_widget_confirm_cb;
+	layer1_8.updown_cb = layer1_up_down_cb;
+
+	//fy
+	layer1_9.up = &layer1_8;
+	layer1_9.down = &layer1_10;
+	layer1_9.focus_back_name = NULL;
+	layer1_9.name = "Text82";
+	layer1_9.confirm_cb = layer1_widget_confirm_cb;
+	layer1_9.updown_cb = layer1_up_down_cb;
+
+
+	//pl
+	layer1_10.up = &layer1_9;
+	layer1_10.down = &layer1_11;
+	layer1_10.focus_back_name = NULL;
+	layer1_10.name = "Text39";
+	layer1_10.confirm_cb = layer1_widget_confirm_cb;
+	layer1_10.updown_cb = layer1_up_down_cb;
+
+	//fd
+	layer1_11.up = &layer1_10;
+	layer1_11.down = &layer1_12;
+	layer1_11.focus_back_name = NULL;
+	layer1_11.name = "Text80";
+	layer1_11.confirm_cb = layer1_widget_confirm_cb;
+	layer1_11.updown_cb = layer1_up_down_cb;
+
+	//DH
+	layer1_12.up = &layer1_11;
+	layer1_12.down = &layer1_13;
+	layer1_12.focus_back_name = NULL;
+	layer1_12.name = "Text45";
+	layer1_12.confirm_cb = layer1_widget_confirm_cb;
+	layer1_12.updown_cb = layer1_up_down_cb;
+
+
+
+	//hs
+	layer1_13.up = &layer1_12;
+	layer1_13.down = &layer1_14;
+	layer1_13.focus_back_name = NULL;
+	layer1_13.name = "Text73";
+	layer1_13.confirm_cb = layer1_widget_confirm_cb;
+	layer1_13.updown_cb = layer1_up_down_cb;
+
+
+	//hi
+	layer1_14.up = &layer1_13;
+	layer1_14.down = &layer1_15;
+	layer1_14.focus_back_name = NULL;
+	layer1_14.name = "Text58";
+	layer1_14.confirm_cb = layer1_widget_confirm_cb;
+	layer1_14.updown_cb = layer1_up_down_cb;
+
+
+	//ed
+	layer1_15.up = &layer1_14;
+	layer1_15.down = NULL;
+	layer1_15.focus_back_name = NULL;
+	layer1_15.name = "Text65";
+	layer1_15.confirm_cb = layer1_widget_confirm_cb;
+	layer1_15.updown_cb = layer1_up_down_cb;
+
+
+
+
 	//初始一次按键超时数据
 	key_down_process();
 }
+
+//ok
 //是否闪烁
 extern char is_shake;
 
 //超时的处理函数
 static void over_time_process()
 {
-	struct timeval now_t = {0};
+	return;
+	struct timeval now_t = { 0 };
 	get_rtc_time(&now_t, NULL);
 	//已经处理过
 	if (is_deal_over_time == 1) return;
@@ -1297,15 +1473,16 @@ static void over_time_process()
 //发送命令到控制板
 void sendCmdToCtr(unsigned char cmd, unsigned char data_1, unsigned char data_2, unsigned char data_3, unsigned char data_4, enum main_pthread_mq_state state)
 {
-	struct uart_data_tag mq_data;
-	mq_data.state = state;
-	processCmdToCtrData(cmd, data_1, data_2, data_3, data_4, mq_data.buf_data);
+	struct main_pthread_mq_tag mq_data;
+	mq_data.state = (unsigned char)state;
+	processCmdToCtrData(cmd, data_1, data_2, data_3, data_4, mq_data.s_data);
 	struct timespec tm;
 	memset(&tm, 0, sizeof(struct timespec));
 	tm.tv_sec = 1;
-	mq_timedsend(uartQueue, &mq_data, sizeof(struct uart_data_tag), 1, &tm);
+	mq_timedsend(uartQueue, &mq_data, sizeof(struct main_pthread_mq_tag), 1, &tm);
 	return 0;
 }
+
 //反馈数据 标识和 目标地址，优先级
 unsigned char frame_0 = 0xEB;
 unsigned char frame_1 = 0x1B;
@@ -1383,78 +1560,71 @@ process_data(struct uart_data_tag *dst, struct chain_list_tag *p_chain_list)
 	}
 	return 0;
 }
-
-
-
+//ok
 //分析得到的数组
-void process_frame(struct main_uart_chg *dst, const unsigned char *src)
+void process_frame(struct child_to_pthread_mq_tag *dst, const unsigned char *src)
 {
-	src = src + 2;
+	unsigned char *old = NULL;
+	//第几帧 0 , 1 , 2 , 3
+	unsigned char idx = 0;
 	//判断第几个帧
-	//第0帧
-	if ((*src & 0x0f) == 0x00){
-
-		//初始化
-		dst->state_show = 0;
-
-		//[2]主板信息   [0][0] 
-		src += 2;
-
-		//[0][1]
+	idx = (*(src + 2) & 0x0f);
+	old = src + 3;
+	if (idx == 0x00){
 		//得到主机状态
-		dst->machine_state = *src & 0x03;
+		dst->machine_state = *(old+1) & 0x03;
 		//判断是否故障
-		if ((*src & 0x04) == 0){
+		if ((*(old+1) & 0x04) == 0){
 			dst->is_err = 0;
 		}
 		else{
 			dst->is_err = 1;
 		}
 		//判断状态 流水
-		if (*src & 0x10){
+		if (*(old + 1) & 0x10){
 			dst->state_show = 0x01;
 			//风机
 		}
-		if (*src & 0x20){
+		if (*(old + 1) & 0x20){
 			dst->state_show = dst->state_show | 0x2;
 			//火焰
 		}
-		if (*src & 0x40){
+		if (*(old + 1) & 0x40){
 			dst->state_show = dst->state_show | 0x4;
 			//风压
 		}
-		if (*src & 0x80){
+		if (*(old + 1) & 0x80){
 			dst->state_show = dst->state_show | 0x8;
 		}
-
-		//设置温度 [0][4]
-		src += 3;
-		dst->shezhi_temp = *src++;
-
+		//设置温度[0][4]
+		dst->shezhi_temp = *(old+4);
 		//出水温度[0][5]
-		dst->chushui_temp = *src++;
-
+		dst->chushui_temp = *(old + 5);
 		//进水温度[0][6]
-		dst->jinshui_temp = *src++;
-
-		//错误代码或者比例阀电流
-		src++;
-		dst->err_no = *src++;
-		//第1帧
+		dst->jinshui_temp = *(old + 6);
+		//错误代码或者比例阀电流[0][8]
+		dst->err_no = *(old + 8);
+		//风机转速[0][10]
+		dst->wind_rate = *(old + 10);
 	}
-	else if ((*src & 0x0f) == 0x01){
-
-
-		//第2帧
+	else if (idx == 0x01){
+	
 	}
-	else if ((*src & 0x0f) == 0x02){
-
-
+	else if (idx == 0x02){
+		//[2][0] 当前气源号
+		dst->fa_num = *old;
+		//[2][3]
+		dst->dh_num = *(old + 3);
+		//[2][1]
+		dst->ph_num = *(old + 1);
+		//[2][4]
+		dst->ne_num = *(old + 4);
 	}
-	else if ((*src & 0x0f) == 0x03){
-
-
+	else if (idx == 0x03){
+		//[3][2] 回水温度
+		dst->huishui_temp = *(old + 2);
 	}
+	
 }
 
 
@@ -1468,9 +1638,9 @@ static unsigned char win_test()
 	0xEA, 0x1B, 0x13, 0x00, 0x00, 0x05, 0x40, 0x50, 0x00, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0xBE, 0x5F,*/
 	unsigned char test_buf[68] = {
 		//[0][0] //[0][1]                                                 //erno
-		0xEA, 0x1B, 0x10, 0x4D, 0x00, 0x00, 0x00, 0x2D, 0x10, 0x00, 0x00, 0x00, 0x41, 0x00, 0x00, 0x79, 0x53,
+		0xEA, 0x1B, 0x10, 0x4D, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x79, 0x53,
 		0xEA, 0x1B, 0x11, 0x01, 0x00, 0x00, 0x00, 0x1E, 0x0A, 0x2A, 0x28, 0x26, 0x2A, 0x00, 0x00, 0x48, 0x35,
-		0xEA, 0x1B, 0x12, 0x00, 0xCD, 0x80, 0x9E, 0x1E, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x03, 0x05, 0x4B,
+		0xEA, 0x1B, 0x12, 0x00, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x20, 0x21, 0x05, 0x4B,
 		0xEA, 0x1B, 0x13, 0x00, 0x00, 0x05, 0x40, 0x50, 0x00, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0xBE, 0x5F,
 	};
 	static int idx;
@@ -1483,7 +1653,7 @@ static unsigned char win_test()
 	return res;
 }
 #endif
-
+//ok
 //线程串口回调函数
 static void* UartFunc(void* arg)
 {
@@ -1491,9 +1661,10 @@ static void* UartFunc(void* arg)
 	struct main_pthread_mq_tag main_pthread_mq;
 	//缓存数据
 	struct uart_data_tag uart_data;
+	memset(&uart_data, 0, sizeof(struct uart_data_tag));
 
 	//线程数据
-	struct main_uart_chg main_uart_chg_data;
+	//struct main_uart_chg main_uart_chg_data;
 
 	//子线程到主线程的数据
 	struct child_to_pthread_mq_tag child_to_pthread_mq;
@@ -1506,6 +1677,7 @@ static void* UartFunc(void* arg)
 	//默认应答
 	uint8_t texBufArray[11] = { 0 };
 	uint8_t backBufArray[11] = { 0xEB, 0x1B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xD8, 0x2A };
+	
 	while (1){
 		memset(rece_buf, 0, sizeof(rece_buf));
 		//如果是win虚拟测试
@@ -1513,7 +1685,7 @@ static void* UartFunc(void* arg)
 		len = 1;
 		rece_buf[0] = win_test();
 #else
-		len = read(TEST_PORT, getstr1, sizeof(getstr1));
+		len = read(UART_PORT, rece_buf, sizeof(rece_buf));
 #endif
 		//如果串口有数据
 		if (len > 0){
@@ -1525,21 +1697,12 @@ static void* UartFunc(void* arg)
 			//已经完成
 			if (uart_data.state == 2){
 				//打印结束
-				/*LOG_RECE_UART(uart_data.buf_data);
-				printf("\nend\n");*/
 				is_has = 0;
 				uart_data.state = 0;
 				uart_data.count = 0;
 				//分析收到的数
-				process_frame(&main_uart_chg_data, uart_data.buf_data);
-				//发数据到主线程
-				child_to_pthread_mq.state_show = main_uart_chg_data.state_show;
-				child_to_pthread_mq.shezhi_temp = main_uart_chg_data.shezhi_temp;
-				child_to_pthread_mq.chushui_temp = main_uart_chg_data.chushui_temp;
-				child_to_pthread_mq.jinshui_temp = main_uart_chg_data.jinshui_temp;
-				child_to_pthread_mq.err_no = main_uart_chg_data.err_no;
-				child_to_pthread_mq.machine_state = main_uart_chg_data.machine_state;
-				child_to_pthread_mq.is_err = main_uart_chg_data.is_err;
+				process_frame(&child_to_pthread_mq, uart_data.buf_data);
+
 				memset(&tm, 0, sizeof(struct timespec));
 				tm.tv_sec = 1;
 				mq_timedsend(childQueue, &child_to_pthread_mq, sizeof(struct child_to_pthread_mq_tag), 1, &tm);
@@ -1563,8 +1726,12 @@ static void* UartFunc(void* arg)
 			}
 		}
 	}
+
+
+
 	return NULL;
 }
+
 
 //判断是否有定时任务
 static void run_time_task()
@@ -1584,6 +1751,13 @@ static void run_time_task()
 		yingxue_base.jinshui_temp = child_to_pthread_mq_tag.jinshui_temp;
 		yingxue_base.err_no = child_to_pthread_mq_tag.err_no;
 		yingxue_base.is_err = child_to_pthread_mq_tag.is_err;
+		
+		yingxue_base.wind_rate = child_to_pthread_mq_tag.wind_rate;//[0][10]风机转速
+		yingxue_base.fa_num = child_to_pthread_mq_tag.fa_num;//[2][0] 当前气源号
+		yingxue_base.dh_num = child_to_pthread_mq_tag.dh_num;//[2][3]
+		yingxue_base.ph_num = child_to_pthread_mq_tag.ph_num;//[2][1]
+		yingxue_base.ne_num = child_to_pthread_mq_tag.ne_num;//[2][4]
+		yingxue_base.huishui_temp_1 = child_to_pthread_mq_tag.huishui_temp;//[3][1] 回水温度 显示的回水温度
 	}
 	if (yingxue_base.yure_mode == 0) return;
 	//单巡航模式
@@ -1618,6 +1792,7 @@ static void run_time_task()
 	}
 }
 
+
 void SceneInit(void)
 {
     struct mq_attr  attr;
@@ -1646,7 +1821,8 @@ void SceneInit(void)
     ituSceneInit(&theScene, NULL);
 
     #ifdef CFG_ENABLE_ROTATE
-    ituSceneSetRotation(&theScene, ITU_ROT_90, CFG_LCD_WIDTH, CFG_LCD_HEIGHT);
+    //ituSceneSetRotation(&theScene, ITU_ROT_90, CFG_LCD_WIDTH, CFG_LCD_HEIGHT);//for screen image and touch direction
+	ituSetRotation(ITU_ROT_270);//just for screen image
     #endif
 
     #ifdef CFG_VIDEO_ENABLE
@@ -2004,6 +2180,7 @@ static void CheckMouse(void)
 #endif // defined(CFG_USB_MOUSE) || defined(_WIN32)
 
 
+
 int SceneRun(void)
 {
     SDL_Event   ev;
@@ -2016,7 +2193,6 @@ int SceneRun(void)
 
     /* Watch keystrokes */
     dblclk = frames = lasttick = lastx = lasty = mouseDownTick = 0;
-
 	//樱雪初始化
 	//串口
 #ifndef _WIN32
@@ -2036,11 +2212,11 @@ int SceneRun(void)
 	struct mq_attr mq_child_attr;
 	mq_child_attr.mq_flags = 0;
 	mq_child_attr.mq_maxmsg = 20;
-	
+
 	mq_child_attr.mq_msgsize = sizeof(struct child_to_pthread_mq_tag);
 	childQueue = mq_open("scene", O_CREAT | O_NONBLOCK, 0644, &mq_child_attr);
 
-	
+
 	//收发串口线程
 	pthread_t task;
 	pthread_attr_t attr;
@@ -2049,14 +2225,14 @@ int SceneRun(void)
 
 	//环形队列
 	create_chain_list(&chain_list);
-	
+
 
 	node_widget_init();
+
     for (;;)
     {
+		
         bool result = false;
-
-
 
         if (CheckQuitValue())
             break;
@@ -2078,7 +2254,7 @@ int SceneRun(void)
         frames++;
         if (tick - lasttick >= 1000)
         {
-            printf("fps: %d\n", frames);
+            
             frames      = 0;
             lasttick    = tick;
         }
@@ -2126,11 +2302,12 @@ int SceneRun(void)
 		}
 
 		//判断是否定时任务需要发送数据
-
+		run_time_task();
 
 #ifdef CFG_LCD_ENABLE
         while (SDL_PollEvent(&ev))
         {
+			
 			//按键处理事件
 			key_down_process();
             switch (ev.type)
@@ -2146,34 +2323,50 @@ int SceneRun(void)
 
                 case SDLK_DOWN:
 					curr_node_widget->updown_cb(curr_node_widget, 1);
-                    
                     break;
 				case 13:
-					//pc确定
 					curr_node_widget->confirm_cb(curr_node_widget, 1);
 					break;
 
                 case SDLK_LEFT:
-					//关机
-					if (yingxue_base.run_state == 1){
-						yingxue_base.run_state = 2;
-					}
-					else if (yingxue_base.run_state == 2){
-						yingxue_base.run_state = 1;
-					}
-					ituLayerGoto(ituSceneFindWidget(&theScene, "welcom"));
+                    //ituSceneSendEvent(&theScene, EVENT_CUSTOM_KEY2, NULL);
+					printf("curr=%s\n", curr_node_widget->name);
                     break;
+
                 case SDLK_RIGHT:
-                    //长按
-					printf("long press\n");
-					if (curr_node_widget->long_press_cb)
-						curr_node_widget->long_press_cb(curr_node_widget, 1);
+                    ituSceneSendEvent(&theScene, EVENT_CUSTOM_KEY3, NULL);
                     break;
 
                 case SDLK_INSERT:
                     break;
 
+    #ifdef _WIN32
+                case SDLK_e:
+                    result |= ituSceneUpdate(&theScene, ITU_EVENT_TOUCHPINCH, 20, 30, 40);
+                    break;
 
+                case SDLK_f:
+                    {
+                        ITULayer *usbDeviceModeLayer = ituSceneFindWidget(&theScene, "usbDeviceModeLayer");
+                        assert(usbDeviceModeLayer);
+
+                        ituLayerGoto(usbDeviceModeLayer);
+                    }
+                    break;
+
+                case SDLK_g:
+                    {
+                        ExternalEvent ev;
+
+                        ev.type = EXTERNAL_SHOW_MSG;
+                        strcpy(ev.buf1, "test");
+
+                        ScreenSaverRefresh();
+                        ExternalProcessEvent(&ev);
+                    }
+                    break;
+
+    #endif          // _WIN32
                 }
                 if (result && !ScreenIsOff() && !StorageIsInUsbDeviceMode())
                     AudioPlayKeySound();
@@ -2183,7 +2376,183 @@ int SceneRun(void)
             case SDL_KEYUP:
                 result = ituSceneUpdate(&theScene, ITU_EVENT_KEYUP, ev.key.keysym.sym, 0, 0);
                 break;
-            
+
+            case SDL_MOUSEMOTION:
+                ScreenSaverRefresh();
+    #if defined(CFG_USB_MOUSE) || defined(_WIN32)
+                if (cursorIcon)
+                {
+                    ituWidgetSetX(cursorIcon, ev.button.x);
+                    ituWidgetSetY(cursorIcon, ev.button.y);
+                    ituWidgetSetDirty(cursorIcon, true);
+                    //printf("mouse: move %d, %d\n", ev.button.x, ev.button.y);
+                }
+    #endif             // defined(CFG_USB_MOUSE) || defined(_WIN32)
+                result = ituSceneUpdate(&theScene, ITU_EVENT_MOUSEMOVE, ev.button.button, ev.button.x, ev.button.y);
+                break;
+
+            case SDL_MOUSEBUTTONDOWN:
+                ScreenSaverRefresh();
+                printf("mouse: down %d, %d\n", ev.button.x, ev.button.y);
+                {
+                    mouseDownTick = SDL_GetTicks();
+    #ifdef DOUBLE_KEY_ENABLE
+                    if (mouseDownTick - dblclk <= 200)
+                    {
+                        result  = ituSceneUpdate(&theScene, ITU_EVENT_MOUSEDOUBLECLICK, ev.button.button, ev.button.x, ev.button.y);
+                        dblclk  = 0;
+                    }
+                    else
+    #endif             // DOUBLE_KEY_ENABLE
+                    {
+                        result  = ituSceneUpdate(&theScene, ITU_EVENT_MOUSEDOWN, ev.button.button, ev.button.x, ev.button.y);
+                        dblclk  = mouseDownTick;
+                        lastx   = ev.button.x;
+                        lasty   = ev.button.y;
+                    }
+                    if (result && !ScreenIsOff() && !StorageIsInUsbDeviceMode())
+                        AudioPlayKeySound();
+
+    #ifdef CFG_SCREENSHOT_ENABLE
+                    if (ev.button.x < 50 && ev.button.y > CFG_LCD_HEIGHT - 50)
+                        Screenshot(screenSurf);
+    #endif             // CFG_SCREENSHOT_ENABLE
+                }
+                break;
+
+            case SDL_MOUSEBUTTONUP:
+                if (SDL_GetTicks() - dblclk <= 200)
+                {
+                    int xdiff   = abs(ev.button.x - lastx);
+                    int ydiff   = abs(ev.button.y - lasty);
+
+                    if (xdiff >= GESTURE_THRESHOLD && xdiff > ydiff)
+                    {
+                        if (ev.button.x > lastx)
+                        {
+                            printf("mouse: slide to right\n");
+                            result |= ituSceneUpdate(&theScene, ITU_EVENT_TOUCHSLIDERIGHT, xdiff, ev.button.x, ev.button.y);
+                        }
+                        else
+                        {
+                            printf("mouse: slide to left\n");
+                            result |= ituSceneUpdate(&theScene, ITU_EVENT_TOUCHSLIDELEFT, xdiff, ev.button.x, ev.button.y);
+                        }
+                    }
+                    else if (ydiff >= GESTURE_THRESHOLD)
+                    {
+                        if (ev.button.y > lasty)
+                        {
+                            printf("mouse: slide to down\n");
+                            result |= ituSceneUpdate(&theScene, ITU_EVENT_TOUCHSLIDEDOWN, ydiff, ev.button.x, ev.button.y);
+                        }
+                        else
+                        {
+                            printf("mouse: slide to up\n");
+                            result |= ituSceneUpdate(&theScene, ITU_EVENT_TOUCHSLIDEUP, ydiff, ev.button.x, ev.button.y);
+                        }
+                    }
+                }
+                result          |= ituSceneUpdate(&theScene, ITU_EVENT_MOUSEUP, ev.button.button, ev.button.x, ev.button.y);
+                mouseDownTick   = 0;
+                break;
+
+            case SDL_FINGERMOTION:
+                ScreenSaverRefresh();
+                printf("touch: move %d, %d\n", ev.tfinger.x, ev.tfinger.y);
+                result = ituSceneUpdate(&theScene, ITU_EVENT_MOUSEMOVE, 1, ev.tfinger.x, ev.tfinger.y);
+                break;
+
+            case SDL_FINGERDOWN:
+                ScreenSaverRefresh();
+                printf("touch: down %d, %d\n", ev.tfinger.x, ev.tfinger.y);
+                {
+                    mouseDownTick = SDL_GetTicks();
+    #ifdef DOUBLE_KEY_ENABLE
+        #ifdef CFG_POWER_WAKEUP_DOUBLE_CLICK_INTERVAL
+                    if (mouseDownTick - dblclk <= CFG_POWER_WAKEUP_DOUBLE_CLICK_INTERVAL)
+        #else
+                    if (mouseDownTick - dblclk <= 200)
+        #endif
+                    {
+                        printf("double touch!\n");
+                        if (sleepModeDoubleClick)
+                        {
+                            ScreenSetDoubleClick();
+                            ScreenSaverRefresh();
+                            sleepModeDoubleClick = false;
+                        }
+                        result  = ituSceneUpdate(&theScene, ITU_EVENT_MOUSEDOUBLECLICK, 1, ev.tfinger.x, ev.tfinger.y);
+                        dblclk  = mouseDownTick = 0;
+                    }
+                    else
+    #endif             // DOUBLE_KEY_ENABLE
+                    {
+                        result  = ituSceneUpdate(&theScene, ITU_EVENT_MOUSEDOWN, 1, ev.tfinger.x, ev.tfinger.y);
+                        dblclk  = mouseDownTick;
+                        lastx   = ev.tfinger.x;
+                        lasty   = ev.tfinger.y;
+                    }
+                    if (result && !ScreenIsOff() && !StorageIsInUsbDeviceMode())
+                        AudioPlayKeySound();
+
+    #ifdef CFG_SCREENSHOT_ENABLE
+                    if (ev.tfinger.x < 50 && ev.tfinger.y > CFG_LCD_HEIGHT - 50)
+                        Screenshot(screenSurf);
+    #endif             // CFG_SCREENSHOT_ENABLE
+                       //if (ev.tfinger.x < 50 && ev.tfinger.y > CFG_LCD_HEIGHT - 50)
+                       //    SceneQuit(QUIT_UPGRADE_WEB);
+                }
+                break;
+
+            case SDL_FINGERUP:
+                printf("touch: up %d, %d\n", ev.tfinger.x, ev.tfinger.y);
+                if (SDL_GetTicks() - dblclk <= 300)
+                {
+                    int xdiff   = abs(ev.tfinger.x - lastx);
+                    int ydiff   = abs(ev.tfinger.y - lasty);
+
+                    if (xdiff >= GESTURE_THRESHOLD && xdiff > ydiff)
+                    {
+                        if (ev.tfinger.x > lastx)
+                        {
+                            printf("touch: slide to right %d %d\n", ev.tfinger.x, ev.tfinger.y);
+                            result |= ituSceneUpdate(&theScene, ITU_EVENT_TOUCHSLIDERIGHT, xdiff, ev.tfinger.x, ev.tfinger.y);
+                        }
+                        else
+                        {
+                            printf("touch: slide to left %d %d\n", ev.tfinger.x, ev.tfinger.y);
+                            result |= ituSceneUpdate(&theScene, ITU_EVENT_TOUCHSLIDELEFT, xdiff, ev.tfinger.x, ev.tfinger.y);
+                        }
+                    }
+                    else if (ydiff >= GESTURE_THRESHOLD)
+                    {
+                        if (ev.tfinger.y > lasty)
+                        {
+                            printf("touch: slide to down %d %d\n", ev.tfinger.x, ev.tfinger.y);
+                            result |= ituSceneUpdate(&theScene, ITU_EVENT_TOUCHSLIDEDOWN, ydiff, ev.tfinger.x, ev.tfinger.y);
+                        }
+                        else
+                        {
+                            printf("touch: slide to up %d %d\n", ev.tfinger.x, ev.tfinger.y);
+                            result |= ituSceneUpdate(&theScene, ITU_EVENT_TOUCHSLIDEUP, ydiff, ev.tfinger.x, ev.tfinger.y);
+                        }
+                    }
+                }
+                result          |= ituSceneUpdate(&theScene, ITU_EVENT_MOUSEUP, 1, ev.tfinger.x, ev.tfinger.y);
+                mouseDownTick   = 0;
+                break;
+
+            case SDL_MULTIGESTURE:
+                printf("touch: multi %d, %d\n", ev.mgesture.x, ev.mgesture.y);
+                if (ev.mgesture.dDist > 0.0f)
+                {
+                    int dist    = (int)(screenDistance * ev.mgesture.dDist);
+                    int x       = (int)(screenWidth * ev.mgesture.x);
+                    int y       = (int)(screenHeight * ev.mgesture.y);
+                    result |= ituSceneUpdate(&theScene, ITU_EVENT_TOUCHPINCH, dist, x, y);
+                }
+                break;
             }
         }
         if (!ScreenIsOff())

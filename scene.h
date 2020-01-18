@@ -112,10 +112,19 @@ extern ITUScene theScene;
 
 /** @} */ // end of ctrlboard_scene
 
-
 //樱雪
 //按键回调函数 
 typedef void(*node_widget_cb)(struct node_widget *widget, unsigned char state);
+
+//发送指令的状态
+enum main_pthread_mq_state
+{
+	OPEN_CMD =1, //开机
+	CLOSE_CMD =2, //关机
+	RUN_YURE=3, //开预热
+	STOP_YURE=4, //关预热
+	SET_TEMP=5, //设置温度
+};
 
 //控件结构体
 //控制控件
@@ -166,24 +175,29 @@ struct yingxue_base_tag{
 	unsigned char is_err;//是否故障
 	//是否已经预热
 	unsigned char yure_state; //0 未预热 1已经预热
+	unsigned char wind_rate;//[0][10]风机转速
+	unsigned char fa_num;//[2][0] 当前气源号
+	unsigned char dh_num;//[2][3]
+	unsigned char ph_num;//[2][1]
+	unsigned char ne_num;//[2][4]
+	unsigned char huishui_temp_1;//[3][1] 回水温度 显示的回水温度
+};
 
-};
-enum main_pthread_mq_state
-{
-	OPEN_CMD, //开机
-	CLOSE_CMD, //关机
-	RUN_YURE, //开预热
-	STOP_YURE, //关预热
-	SET_TEMP, //设置温度
-};
 
 //主线程通过消息队列传送数据
 struct main_pthread_mq_tag{
 	unsigned char s_data[11];
-	enum main_pthread_mq_state state;			// 0 控制板数据 1开机命令 2关机命令
+	unsigned char state;			// 0 控制板数据 1开机命令 2关机命令
 };
 
-//子线程通过消息队列传送数据到主线程
+//子线程通过消息队列传送数据到主线程  
+/*
+PA Fa [2][0]    DH    [2][3]
+PH    [2][1]    FY  nf [2][9] (空)
+PL [2][2]       FD 空
+pd 空            hs 回水温度
+HI  NE [2][4]
+*/
 struct child_to_pthread_mq_tag{
 	//第0位 有水  第1位 风机 第2位 火焰 第3位 风压
 	unsigned char state_show;
@@ -199,17 +213,29 @@ struct child_to_pthread_mq_tag{
 	unsigned char machine_state;
 	//是否故障
 	unsigned char is_err;
+	//[0][10]风机转速
+	unsigned char wind_rate;
+	//[2][0] 当前气源号
+	unsigned char fa_num;
+	//[2][3]
+	unsigned char dh_num;
+	//[2][1]
+	unsigned char ph_num;
+	//[2][4]
+	unsigned char ne_num;
+	//[3][1] 回水温度
+	unsigned char huishui_temp;
 };
 
 //串口的数据
 struct uart_data_tag{
 	unsigned char count;//当前数据数
-	unsigned char buf_data[20]; //当前缓存
+	unsigned char buf_data[17]; //当前缓存
 	unsigned char state; //状态  0正常 1错误 2已经完成
 };
 
 //主页串口改变显示
-struct main_uart_chg
+/*struct main_uart_chg
 {
 	//第0位 有水  第1位 风机 第2位 火焰 第3位 风压
 	unsigned char state_show;
@@ -226,7 +252,7 @@ struct main_uart_chg
 	//是否故障
 	unsigned char is_err;
 
-};
+};*/
 
 
 //串口
@@ -264,7 +290,7 @@ void set_rtc_time(unsigned char hour, unsigned char min);
 void calcNextYure(int *beg, int *end);
 
 //发送命令
-void sendCmdToCtr(unsigned char cmd, unsigned char data_1, unsigned char data_2, unsigned char data_3, unsigned char data_4, enum send_uart_state state);
+void sendCmdToCtr(unsigned char cmd, unsigned char data_1, unsigned char data_2, unsigned char data_3, unsigned char data_4, enum main_pthread_mq_state state);
 
 //组合数据
 void processCmdToCtrData(unsigned char cmd, unsigned char data_1,

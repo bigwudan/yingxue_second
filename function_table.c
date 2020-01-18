@@ -21,5 +21,5 @@ ITUActionFunction actionFunctions[] =
 	"MainLayerOnTimer", MainLayerOnTimer,
 	"WelcomeOnTimer", WelcomeOnTimer,
 	"ERROnTimer", ERROnTimer,
-    NULL, NULL
+	NULL, NULL
 };
