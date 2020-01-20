@@ -304,6 +304,15 @@ void processCmdToCtrData(unsigned char cmd, unsigned char data_1,
 #define LOG_RECE_UART(arr) do{for(int i=0; i < 17; i++) printf("%02X ", arr[i]); }while(0)
 
 
+
+//打印子线程发送的消息队列
+#define LOG_CHILD_MQ(arr)  do{\
+								printf("state_show=%02X, shezhi_temp=%02X, chushui_temp=%02X, jinshui_temp=%02X, err_no=%02X, machine_state=%02X, is_err=%02X, wind_rate=%02X, fa_num=%02X, dh_num=%02X, ph_num=%02X, ne_num=%02X, huishui_temp=%02X\n",\
+										arr.state_show, arr.shezhi_temp, arr.chushui_temp, arr.jinshui_temp, arr.err_no, arr.machine_state,\
+									    arr.is_err,arr.wind_rate,arr.fa_num,arr.dh_num,arr.ph_num,arr.ne_num,arr.huishui_temp);}while(0);
+
+
+
 #ifdef __cplusplus
 }
 #endif
