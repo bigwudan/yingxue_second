@@ -467,6 +467,8 @@ static void main_widget_confirm_cb(struct node_widget *widget, unsigned char sta
 
 static void main_widget_up_down_cb(struct node_widget *widget, unsigned char state)
 {
+	//记录上传的数据
+	static int count_idx;
 	struct node_widget *t_node_widget = NULL;
 	struct ITUWidget *t_widget = NULL;
 	char t_buf[20] = { 0 };
@@ -488,9 +490,11 @@ static void main_widget_up_down_cb(struct node_widget *widget, unsigned char sta
 	else{
 		//可以上下调整温度
 		if (yingxue_base.adjust_temp_state == 0 || yingxue_base.adjust_temp_state == 1){
-			static int count_idx;
-			yingxue_base.adjust_temp_state = 1;
-			count_idx = yingxue_base.shezhi_temp;
+			//如果才开始调整
+			if (yingxue_base.adjust_temp_state == 0){
+				yingxue_base.adjust_temp_state = 1;
+				count_idx = yingxue_base.shezhi_temp;
+			}
 			if (state == 0){
 				count_idx += 1;
 			}
@@ -1578,7 +1582,6 @@ static void over_time_process()
 		is_deal_over_time = 1;
 		//如果是调整温度,给闪烁
 		if (yingxue_base.adjust_temp_state == 1){
-			printf("beg share\n");
 			is_shake = 1;
 		}
 		else{

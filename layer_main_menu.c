@@ -531,6 +531,14 @@ bool MainLayerOnTimer(ITUWidget* widget, char* param)
 			}
 			//时间归零
 			memset(&during_tm, 0, sizeof(struct timeval));
+			//初始化
+			yingxue_base.adjust_temp_state = 0;
+			is_shake = 0;
+			//显示出水温度
+			sprintf(t_buf, "%d", yingxue_base.chushui_temp);
+			ituWidgetSetVisible(t_widget, true);
+			t_widget = ituSceneFindWidget(&theScene, "Text17");
+			ituTextSetString(t_widget, t_buf);
 		}
 		else{
 			if (t_widget){
