@@ -910,14 +910,18 @@ static void layer1_widget_confirm_cb(struct node_widget *widget, unsigned char s
 		if (widget->state == 0){
 			//锁定
 			widget->state = 1;
-			t_widget = ituSceneFindWidget(&theScene, widget->checked_back_name);
-			ituWidgetSetVisible(t_widget, true);
+			if (widget->checked_back_name){
+				t_widget = ituSceneFindWidget(&theScene, widget->checked_back_name);
+				ituWidgetSetVisible(t_widget, true);
+			}
 		}
 		else{
 			//解除锁定
 			widget->state = 0;
-			t_widget = ituSceneFindWidget(&theScene, widget->checked_back_name);
-			ituWidgetSetVisible(t_widget, false);
+			if (widget->checked_back_name){
+				t_widget = ituSceneFindWidget(&theScene, widget->checked_back_name);
+				ituWidgetSetVisible(t_widget, false);
+			}
 		}
 	}
 	
@@ -1007,7 +1011,7 @@ static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
 		}
 
 		if (t_node_widget){
-			command_widget_up_down(t_node_widget);
+			curr_node_widget = t_node_widget;
 		}
 	}
 
@@ -1398,7 +1402,7 @@ static void node_widget_init()
 	//出厂设置
 	//返回按键
 	layer1_0.up = NULL;
-	layer1_0.down = &layer1_1;
+	layer1_0.down = &layer1_6;
 	layer1_0.focus_back_name = NULL;
 	layer1_0.name = "BackgroundButton60";
 	layer1_0.confirm_cb = layer1_widget_confirm_cb;
