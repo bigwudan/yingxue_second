@@ -2462,7 +2462,10 @@ int SceneRun(void)
                     break;
 
                 case SDLK_RIGHT:
-                    ituSceneSendEvent(&theScene, EVENT_CUSTOM_KEY3, NULL);
+                    //³¤°´
+					if (curr_node_widget->long_press_cb){
+						curr_node_widget->long_press_cb(curr_node_widget, NULL);
+					}
                     break;
 
                 case SDLK_INSERT:
