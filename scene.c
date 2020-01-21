@@ -1838,6 +1838,9 @@ static void* UartFunc(void* arg)
 				}
 				//如果有指令需要发出
 				if (is_has){
+					struct timeval t_tm;
+					get_rtc_time(&t_tm, NULL);
+					printf("cur=%lu ", t_tm.tv_sec);
 					LOG_WRITE_UART(texBufArray);
 					printf("\n\n");
 					write(UART_PORT, texBufArray, sizeof(texBufArray));
