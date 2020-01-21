@@ -1902,7 +1902,7 @@ static void run_time_task()
 	//预热定时任务
 	else if (yingxue_base.yure_mode == 3){
 		//这个时间是否需要启动
-		if (*(yingxue_base.dingshi_list + tm_t->tm_hour - 1) == 1){
+		if (*(yingxue_base.dingshi_list + tm_t->tm_hour) == 1){
 			if (yingxue_base.yure_state == 0){
 				//开始
 				SEND_OPEN_YURE_CMD();

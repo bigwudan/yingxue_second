@@ -245,6 +245,11 @@ static void yureshezhiLayer()
 	get_rtc_time(&curr_time, NULL);
 	t_tm = localtime(&curr_time);
 
+	//设置回水温差
+	t_widget = ituSceneFindWidget(&theScene, "Text3");
+	sprintf(t_buf, "%02d", yingxue_base.huishui_temp);
+	ituTextSetString(t_widget, t_buf);
+
 	//设置小时
 	t_widget = ituSceneFindWidget(&theScene, "Text42");
 	sprintf(t_buf, "%02d", t_tm->tm_hour);
