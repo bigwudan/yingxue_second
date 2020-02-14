@@ -613,6 +613,7 @@ bool WelcomeOnTimer(ITUWidget* widget, char* param)
 {
 	//是否已经动作
 	static unsigned char flag;
+	static unsigned char count;
 	//第一次上电
 	if (yingxue_base.run_state == 0){
 		sleep(2);
@@ -625,11 +626,18 @@ bool WelcomeOnTimer(ITUWidget* widget, char* param)
 	//关机
 	else if (yingxue_base.run_state == 2){
 		if (flag != 2){
-			sleep(2);
+			//sleep(2);
 			//关机
 			SEND_CLOSE_CMD();
-			ioctl(ITP_DEVICE_BACKLIGHT, ITP_IOCTL_OFF, NULL);
 			flag = 2;
+			//计算延迟时间
+			count = 0;
+		}
+		else{
+			count += 1;
+			if (count == 10){
+				ioctl(ITP_DEVICE_BACKLIGHT, ITP_IOCTL_OFF, NULL);
+			}
 		}
 	}//开机
 	else if (yingxue_base.run_state == 1){
@@ -639,6 +647,7 @@ bool WelcomeOnTimer(ITUWidget* widget, char* param)
 			SEND_OPEN_CMD();
 			sleep(2);
 			ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
+			flag = 1;
 		}
 	}
 	return true;

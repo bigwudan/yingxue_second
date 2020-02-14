@@ -340,22 +340,32 @@ int get_rtc_time(struct  timeval *dst, unsigned char *zone)
 //锁定上下移动
 static void lock_widget_up_down(struct node_widget *widget, unsigned char state)
 {
+	enum style_set { HUISHUI_TEMP, BEIJING_SHIJIAN_H, BEIJING_SHIJIAN_M,CHUSHUI_TEMP };
 	struct ITUWidget *t_widget = NULL;
 	char t_buf[20] = { 0 };
 	int t_num = 0;
+	enum style_set style;
+	//回水温度
 	if (strcmp(widget->name, "Background2") == 0){
+		style = HUISHUI_TEMP;
 		t_widget = ituSceneFindWidget(&theScene, "Text3");
 		t_num = atoi(ituTextGetString((ITUText*)t_widget));
 	}
+	//设置北京时间小时
 	else if (strcmp(widget->name, "Background3") == 0){
+		style = BEIJING_SHIJIAN_H;
 		t_widget = ituSceneFindWidget(&theScene, "Text42");
 		t_num = atoi(ituTextGetString((ITUText*)t_widget));
 	}
+	//设置北京时间分
 	else if (strcmp(widget->name, "Background4") == 0){
+		style = BEIJING_SHIJIAN_M;
 		t_widget = ituSceneFindWidget(&theScene, "Text43");
 		t_num = atoi(ituTextGetString((ITUText*)t_widget));
 	}
+	//设置出水温度
 	else if (strcmp(widget->name, "chushui_Background13") == 0){
+		style = CHUSHUI_TEMP;
 		t_widget = ituSceneFindWidget(&theScene, "Text38");
 		t_num = atoi(ituTextGetString((ITUText*)t_widget));
 	}
@@ -365,6 +375,38 @@ static void lock_widget_up_down(struct node_widget *widget, unsigned char state)
 	else{
 		t_num = t_num - 1;
 	}
+
+	//判断范围
+	//回水温差范围
+	if (style == HUISHUI_TEMP && (t_num < 0 || t_num >= 100)){
+		return;
+	}
+	//设置北京时间
+	else if (style == BEIJING_SHIJIAN_H || style == BEIJING_SHIJIAN_M){
+		//小时0-23
+		if (style == BEIJING_SHIJIAN_H && (t_num < 0 || t_num >= 24)){
+			return;
+		}
+	}
+	else if (style == CHUSHUI_TEMP){
+		//35-50
+		if (yingxue_base.select_set_moshi_mode == 1 && (t_num < 35 || t_num > 50)){
+			return;
+		}
+		else if (yingxue_base.select_set_moshi_mode == 2 && (t_num < 35 || t_num > 65)){
+			return;
+		}
+		else if (yingxue_base.select_set_moshi_mode == 3 && (t_num < 0 || t_num > 42)){
+			return;
+		}
+		else if (yingxue_base.select_set_moshi_mode == 4 && (t_num < 0 || t_num > 38)){
+			return;
+		}
+
+
+	
+	}
+
 	sprintf(t_buf, "%d", t_num);
 	ituTextSetString(t_widget, t_buf);
 }
@@ -1029,6 +1071,19 @@ static void key_down_process()
 	get_rtc_time(&last_down_time, NULL);
 	//更新处理标识
 	is_deal_over_time = 0;
+}
+
+
+//初始化数据,基础数据
+static void yingxue_base_init()
+{
+	memset(&yingxue_base, 0, sizeof(struct yingxue_base_tag));
+
+	yingxue_base.normal_moshi.temp = 37;
+	yingxue_base.super_moshi.temp = 36;
+	yingxue_base.eco_moshi.temp = 35;
+	yingxue_base.fruit_moshi.temp = 34;
+
 }
 
 //控制模块初始化
@@ -1819,6 +1874,10 @@ static void* UartFunc(void* arg)
 			process_data(&uart_data, &chain_list);
 			//已经完成
 			if (uart_data.state == 2){
+
+				LOG_RECE_UART(uart_data.buf_data);
+				printf("\n\n");
+
 				//打印结束
 				is_has = 0;
 				uart_data.state = 0;
@@ -2353,9 +2412,13 @@ int SceneRun(void)
 
 	//环形队列
 	create_chain_list(&chain_list);
+	//现在的时间，长按
+	struct timeval curtime;
 
-
+	//图形元素初始化
 	node_widget_init();
+	//基础数据初始化
+	yingxue_base_init();
 
     for (;;)
     {
@@ -2392,7 +2455,7 @@ int SceneRun(void)
 		over_time_process();
 
 		//判断是否有错误代码
-		if (yingxue_base.is_err){
+		/*if (yingxue_base.is_err){
 			if (yingxue_base.err_no == 0xe0){
 				ituLayerGoto(ituSceneFindWidget(&theScene, "E0Layer"));
 			}
@@ -2427,7 +2490,7 @@ int SceneRun(void)
 				ituLayerGoto(ituSceneFindWidget(&theScene, "ECLayer"));
 			}
 
-		}
+		}*/
 
 		//判断是否定时任务需要发送数据
 		run_time_task();
@@ -2443,8 +2506,34 @@ int SceneRun(void)
             case SDL_KEYDOWN:
                 ScreenSaverRefresh();
                 result = ituSceneUpdate(&theScene, ITU_EVENT_KEYDOWN, ev.key.keysym.sym, 0, 0);
+				printf("down_key=%lu\n", ev.key.keysym.sym);
                 switch (ev.key.keysym.sym)
                 {
+				//真实控制板按键
+					//case SDLK_UP:
+				case 1073741884:
+					
+					curr_node_widget->updown_cb(curr_node_widget, 0);
+					break;
+				case 1073741889:
+					//case SDLK_DOWN:
+					curr_node_widget->updown_cb(curr_node_widget, 1);
+					break;
+				case 1073741883:
+					get_rtc_time(&curtime, NULL);
+					//确定
+					break;
+				case 1073741885:
+					if (yingxue_base.run_state == 1){
+						yingxue_base.run_state = 2;
+					}
+					else{
+						yingxue_base.run_state = 1;
+					}
+					ituLayerGoto(ituSceneFindWidget(&theScene, "welcom"));
+					break;
+
+				//键盘按键
                 case SDLK_UP:
 					curr_node_widget->updown_cb(curr_node_widget, 0);
                     break;
@@ -2506,6 +2595,31 @@ int SceneRun(void)
 
             case SDL_KEYUP:
                 result = ituSceneUpdate(&theScene, ITU_EVENT_KEYUP, ev.key.keysym.sym, 0, 0);
+				printf("keyup_key=%lu\n", ev.key.keysym.sym);
+				unsigned long t_curr = 0;
+				struct timeval t_time = { 0 };
+				switch (ev.key.keysym.sym)
+				{
+				//放开后是否长按
+				case 1073741883:
+					get_rtc_time(&t_time, NULL);
+					t_curr = t_time.tv_sec - curtime.tv_sec;
+					if (t_curr >= 2){
+						if (curr_node_widget->long_press_cb)
+							curr_node_widget->long_press_cb(curr_node_widget, 1);
+					}
+					else{
+						curr_node_widget->confirm_cb(curr_node_widget, 2);
+					}
+
+					break;
+				case 1073741886:
+					//出厂设置
+					printf("factory set\n");
+					ituLayerGoto(ituSceneFindWidget(&theScene, "Layer1"));
+					break;
+				}
+
                 break;
 
             case SDL_MOUSEMOTION:

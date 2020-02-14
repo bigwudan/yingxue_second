@@ -235,25 +235,7 @@ struct uart_data_tag{
 	unsigned char state; //状态  0正常 1错误 2已经完成
 };
 
-//主页串口改变显示
-/*struct main_uart_chg
-{
-	//第0位 有水  第1位 风机 第2位 火焰 第3位 风压
-	unsigned char state_show;
-	//设置温度
-	unsigned char shezhi_temp;
-	//出水温度
-	unsigned char chushui_temp;
-	//进水温度
-	unsigned char jinshui_temp;
-	//错误代码
-	unsigned char err_no;
-	//主机状态 0关机 1待机 2正常燃烧 3
-	unsigned char machine_state;
-	//是否故障
-	unsigned char is_err;
 
-};*/
 
 
 //串口
