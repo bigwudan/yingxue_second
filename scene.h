@@ -293,8 +293,8 @@ void processCmdToCtrData(unsigned char cmd, unsigned char data_1,
 										arr.state_show, arr.shezhi_temp, arr.chushui_temp, arr.jinshui_temp, arr.err_no, arr.machine_state,\
 									    arr.is_err,arr.wind_rate,arr.fa_num,arr.dh_num,arr.ph_num,arr.ne_num,arr.huishui_temp);}while(0);
 
-
-
+//获取长按的时间
+#define LONG_PRESS_TIME(a, b, c) 	do{get_rtc_time(&a, NULL);c = a.tv_sec - b.tv_sec;}while(0)					
 #ifdef __cplusplus
 }
 #endif

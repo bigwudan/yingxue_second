@@ -140,6 +140,21 @@ static void MainLayer_init()
 		ituSpriteGoto(t_widget, 3);
 
 	}
+	//模式 0 常规 1超热 2 eco 3水果
+	t_widget = ituSceneFindWidget(&theScene, "moshiSprite");
+
+	if (yingxue_base.moshi_mode == 0 || yingxue_base.moshi_mode == 1){
+		ituSpriteGoto(t_widget, 0);
+	}
+	else if (yingxue_base.moshi_mode == 2){
+		ituSpriteGoto(t_widget, 1);
+	}
+	else if (yingxue_base.moshi_mode == 3){
+		ituSpriteGoto(t_widget, 2);
+	}
+	else if (yingxue_base.moshi_mode == 4){
+		ituSpriteGoto(t_widget, 3);
+	}
 
 }
 
@@ -472,7 +487,7 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 
 	//welcome页面
 	if (strcmp(widget->name, "welcom") == 0){
-		
+		curr_node_widget = NULL;
 	}
 	//MainLayer 首页
 	else if (strcmp(widget->name, "MainLayer") == 0){
@@ -616,12 +631,16 @@ bool WelcomeOnTimer(ITUWidget* widget, char* param)
 	static unsigned char count;
 	//第一次上电
 	if (yingxue_base.run_state == 0){
-		sleep(2);
-		//开机
-		SEND_OPEN_CMD();
-		yingxue_base.run_state = 1;
-		ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
+		if (count == 0){
+			//发送开机
+			SEND_OPEN_CMD();
+		}
+		count++;
+		if (count == 200){
+			yingxue_base.run_state = 1;
+			ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
 
+		}
 	}
 	//关机
 	else if (yingxue_base.run_state == 2){
@@ -634,8 +653,10 @@ bool WelcomeOnTimer(ITUWidget* widget, char* param)
 			count = 0;
 		}
 		else{
-			count += 1;
-			if (count == 10){
+			//count += 1;
+			if (count == 0){
+				count = 1;
+				sleep(2);
 				ioctl(ITP_DEVICE_BACKLIGHT, ITP_IOCTL_OFF, NULL);
 			}
 		}

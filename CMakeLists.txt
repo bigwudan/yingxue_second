@@ -143,6 +143,8 @@ add_executable(${CMAKE_PROJECT_NAME}
     string.c
     upgrade.c
     backup.c
+	yingxue_wifi.c
+	yingxue_wifi.h
     )
 
 # layers

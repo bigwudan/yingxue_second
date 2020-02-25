@@ -76,7 +76,7 @@ static ITUIcon      *cursorIcon;
 #endif
 
 extern void ScreenSetDoubleClick(void);
-//樱雪
+//樱雪crc效验数组
 static const unsigned short crc16tab[256] = {
 	0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
 	0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
@@ -213,15 +213,28 @@ struct timeval last_down_time;
 //环形队列缓存
 struct chain_list_tag chain_list;
 
+/**
+*初始化环形列
+*@param p_chain_list 环形队列指针
+*@return
+*/
 static int create_chain_list(struct chain_list_tag *p_chain_list)
 {
+	//尾
 	p_chain_list->rear = 0;
+	//头
 	p_chain_list->front = 0;
+	//个数
 	p_chain_list->count = 0;
 	memset(p_chain_list->buf, 0, sizeof(p_chain_list->buf));
 	return 0;
 }
-
+/**
+*进入环形队列
+*@param p_chain_list 环形队列指针
+*@param src 入队数据
+*@return 0满 1成功
+*/
 static int in_chain_list(struct chain_list_tag *p_chain_list, unsigned char src)
 {
 	int position = (p_chain_list->rear + 1) % MAX_CHAIN_NUM;
@@ -233,7 +246,12 @@ static int in_chain_list(struct chain_list_tag *p_chain_list, unsigned char src)
 	p_chain_list->rear = position;
 	return 1;
 }
-
+/**
+*出环形队列
+*@param p_chain_list 环形队列指针
+*@param src 出队数据
+*@return 0空 1成功
+*/
 static int out_chain_list(struct chain_list_tag *p_chain_list, unsigned char *src)
 {
 	//空
@@ -244,6 +262,12 @@ static int out_chain_list(struct chain_list_tag *p_chain_list, unsigned char *sr
 	p_chain_list->front = (p_chain_list->front + 1) % MAX_CHAIN_NUM;
 	return 1;
 }
+/**
+*CRC效验
+*@param buf 目标数据
+*@param len 数据长度
+*@return 返回CRC数据
+*/
 unsigned short crc16_ccitt(const char *buf, int len)
 {
 	register int counter;
@@ -262,16 +286,29 @@ void calcNextYure(int *beg, int *end)
 	struct tm *t_tm;
 	unsigned char cur_hour;
 	unsigned char num;
-	*beg = 0;
-	*end = 0;
+	*beg = -1;
+	*end = -1;
 	get_rtc_time(&curr_time, NULL);
 	t_tm = localtime(&curr_time);
 	cur_hour = t_tm->tm_hour;
 	//开始是否找到
 	unsigned char is_beg = 0;
+	//是否开始计数 0 未开始计数 1 开始计数
+	unsigned char is_count = 0;
 
+	//如果当前时间已经开始加热
+	if (*(yingxue_base.dingshi_list + cur_hour) == 1){
+		is_count = 0;
+	}
+	//未开始加热，开始计数
+	else{
+		is_count = 1;
+	}
 	//先向前。如何没有找到从新开始找
 	for (int i = 0; i < 2; i++){
+		//连续预热，中间已经中断 0连续 1已经不连续
+		int continue_flag = 0;
+		//向前查找,起始值应该等于当前时间
 		if (i == 0){
 			num = cur_hour;
 		}
@@ -280,26 +317,46 @@ void calcNextYure(int *beg, int *end)
 		}
 		for (int j = num; j < 24; j++)
 		{
-			//存在时间
-			if (*(yingxue_base.dingshi_list + j) == 1){
-				//开始计算
-				if (is_beg == 0){
-					*beg = j;
-					is_beg = 1;
+			
+			//未开始计数，找到下一个起始
+			if (is_count == 0){
+				//连续中,如果有中断，置位
+				if ((continue_flag == 0) && (*(yingxue_base.dingshi_list + j) == 0)){
+					continue_flag = 1;
 				}
-				//结束连续时间一直计算
-				else if (is_beg == 1){
-					*end = j;
+				//不连续中断中，找到一个开始预热
+				else if ((continue_flag == 1) && (*(yingxue_base.dingshi_list + j) == 1)){
+					is_count = 1;
 				}
 			}
-			else{
-				//如果有断层立即结束
-				if (*beg != 0) break;
+			//如果已经计时
+			if (is_count == 1){
+				//存在时间
+				if (*(yingxue_base.dingshi_list + j) == 1){
+					//开始计算
+					if (is_beg == 0){
+						*beg = j;
+						*end = j;
+						is_beg = 1;
+					}
+					//结束连续时间一直计算
+					else if (is_beg == 1){
+						*end = j;
+					}
+				}
+				else{
+					//如果有断层立即结束
+					if (*beg != -1) break;
+				}
 			}
 		}
-		if (*beg != 0) break;
+		if (*beg != -1) break;
 	}
-
+	//如果下次预热时间，开始时间等于当前时间，去掉不显示
+	if (*beg == cur_hour){
+		*beg = -1;
+		*end = -1;
+	}
 	return;
 }
 //设置当前时间
@@ -337,6 +394,16 @@ int get_rtc_time(struct  timeval *dst, unsigned char *zone)
 	dst->tv_usec = 0;
 	return 1;
 }
+
+//按键时间发生时的触发事件
+static void key_down_process()
+{
+	//最后一次的时间
+	get_rtc_time(&last_down_time, NULL);
+	//更新处理标识
+	is_deal_over_time = 0;
+}
+
 //锁定上下移动
 static void lock_widget_up_down(struct node_widget *widget, unsigned char state)
 {
@@ -543,6 +610,13 @@ static void main_widget_up_down_cb(struct node_widget *widget, unsigned char sta
 			else{
 				count_idx -= 1;
 			}
+
+			//温度范围
+			if (count_idx < 0 || count_idx > 65){
+				return ;
+			}
+
+
 			t_widget = ituSceneFindWidget(&theScene, "Text17");
 			sprintf(t_buf, "%d", count_idx);
 			yingxue_base.shezhi_temp = count_idx;
@@ -752,6 +826,8 @@ static void yure_yureshezhiLayer_widget_confirm_cb(struct node_widget *widget, u
 			widget->state = 0;
 			t_widget = ituSceneFindWidget(&theScene, widget->checked_back_name);
 			ituWidgetSetVisible(t_widget, false);
+			//设置时间后从新记录一次最后时间
+			key_down_process();
 		}
 	}
 }
@@ -1064,14 +1140,7 @@ static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
 }
 
 
-//按键时间发生时的触发事件
-static void key_down_process()
-{
-	//最后一次的时间
-	get_rtc_time(&last_down_time, NULL);
-	//更新处理标识
-	is_deal_over_time = 0;
-}
+
 
 
 //初始化数据,基础数据
@@ -1083,6 +1152,7 @@ static void yingxue_base_init()
 	yingxue_base.super_moshi.temp = 36;
 	yingxue_base.eco_moshi.temp = 35;
 	yingxue_base.fruit_moshi.temp = 34;
+	yingxue_base.shezhi_temp = 35;
 
 }
 
@@ -1640,9 +1710,12 @@ static void over_time_process()
 			is_shake = 1;
 		}
 		else{
-			if (strcmp(curr_node_widget->name, "BackgroundButton3") != 0){
-				ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
+			if (curr_node_widget){
+				if (strcmp(curr_node_widget->name, "BackgroundButton3") != 0){
+					ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
+				}
 			}
+
 		}
 	}
 	return;
@@ -1687,11 +1760,18 @@ void processCmdToCtrData(unsigned char cmd, unsigned char data_1,
 }
 
 
-//分析数据
+/*
+从缓存中获取数据，并且分析帧数据
+@param dst 从缓存中获取一帧完整的数据
+@param p_chain_list 缓存队列
+@return
+*/
 unsigned char
 process_data(struct uart_data_tag *dst, struct chain_list_tag *p_chain_list)
 {
+	//错误标识
 	unsigned char flag = 0;
+	//crc验证
 	unsigned short crc = 0;
 	unsigned char buf = 0;
 
@@ -1708,7 +1788,6 @@ process_data(struct uart_data_tag *dst, struct chain_list_tag *p_chain_list)
 			dst->buf_data[dst->count++] = buf;
 			//接受完17个数据 结束
 			if (dst->count == 17){
-				//检查crc 
 				//检查crc 
 				crc = crc16_ccitt(dst->buf_data + 1, 14);
 				if (((unsigned char)(crc >> 8) == dst->buf_data[15]) &&
@@ -1738,8 +1817,12 @@ process_data(struct uart_data_tag *dst, struct chain_list_tag *p_chain_list)
 	}
 	return 0;
 }
-//ok
-//分析得到的数组
+/*
+分析串口帧数据
+@param dst 目标数据，分析一帧结束后，所存入的数据
+@param p_chain_list 缓存队列
+@return
+*/
 void process_frame(struct child_to_pthread_mq_tag *dst, const unsigned char *src)
 {
 	unsigned char *old = NULL;
@@ -1786,7 +1869,7 @@ void process_frame(struct child_to_pthread_mq_tag *dst, const unsigned char *src
 		dst->wind_rate = *(old + 10);
 	}
 	else if (idx == 0x01){
-	
+		//无需解析
 	}
 	else if (idx == 0x02){
 		//[2][0] 当前气源号
@@ -2366,6 +2449,45 @@ static void CheckMouse(void)
 
 #endif // defined(CFG_USB_MOUSE) || defined(_WIN32)
 
+//测试
+void test_unit()
+{
+	int beg = 0;
+	int end = 0;
+
+	//yingxue_base.dingshi_list[0] = 1;
+	//yingxue_base.dingshi_list[1] = 1;
+	//yingxue_base.dingshi_list[2] = 1;
+	//yingxue_base.dingshi_list[3] = 1;
+	//yingxue_base.dingshi_list[4] = 1;
+	//yingxue_base.dingshi_list[5] = 1;
+	//yingxue_base.dingshi_list[6] = 1;
+	//yingxue_base.dingshi_list[7] = 1;
+	//yingxue_base.dingshi_list[8] = 1;
+	//yingxue_base.dingshi_list[9] = 1;
+	//yingxue_base.dingshi_list[10] = 1;
+	//yingxue_base.dingshi_list[11] = 0;
+	//yingxue_base.dingshi_list[12] = 1;
+	//yingxue_base.dingshi_list[13] = 1;
+	//yingxue_base.dingshi_list[14] = 1;
+	//yingxue_base.dingshi_list[15] = 1;
+	//yingxue_base.dingshi_list[16] = 1;
+	//yingxue_base.dingshi_list[17] = 1;
+	//yingxue_base.dingshi_list[18] = 1;
+	//yingxue_base.dingshi_list[19] = 1;
+	//yingxue_base.dingshi_list[20] = 1;
+	//yingxue_base.dingshi_list[21] = 1;
+	//yingxue_base.dingshi_list[22] = 1;
+	//yingxue_base.dingshi_list[23] = 1;
+
+	
+
+
+	calcNextYure(&beg, &end);
+
+	printf("beg=%d,end=%d\n", beg, end);
+	sleep(1000);
+}
 
 
 int SceneRun(void)
@@ -2419,6 +2541,9 @@ int SceneRun(void)
 	node_widget_init();
 	//基础数据初始化
 	yingxue_base_init();
+
+	//c测试
+	test_unit();
 
     for (;;)
     {
@@ -2512,27 +2637,28 @@ int SceneRun(void)
 				//真实控制板按键
 					//case SDLK_UP:
 				case 1073741884:
+					if (curr_node_widget){
+						curr_node_widget->updown_cb(curr_node_widget, 0);
+					}
 					
-					curr_node_widget->updown_cb(curr_node_widget, 0);
 					break;
 				case 1073741889:
 					//case SDLK_DOWN:
-					curr_node_widget->updown_cb(curr_node_widget, 1);
+					if (curr_node_widget){
+						curr_node_widget->updown_cb(curr_node_widget, 1);
+					}
+					
 					break;
+				//确定
 				case 1073741883:
-					get_rtc_time(&curtime, NULL);
-					//确定
+					if (curr_node_widget){
+						get_rtc_time(&curtime, NULL);
+					}
 					break;
+				//关机
 				case 1073741885:
-					if (yingxue_base.run_state == 1){
-						yingxue_base.run_state = 2;
-					}
-					else{
-						yingxue_base.run_state = 1;
-					}
-					ituLayerGoto(ituSceneFindWidget(&theScene, "welcom"));
+					get_rtc_time(&curtime, NULL);
 					break;
-
 				//键盘按键
                 case SDLK_UP:
 					curr_node_widget->updown_cb(curr_node_widget, 0);
@@ -2542,6 +2668,7 @@ int SceneRun(void)
 					curr_node_widget->updown_cb(curr_node_widget, 1);
                     break;
 				case 13:
+					
 					curr_node_widget->confirm_cb(curr_node_widget, 1);
 					break;
 
@@ -2552,9 +2679,12 @@ int SceneRun(void)
 
                 case SDLK_RIGHT:
                     //长按
-					if (curr_node_widget->long_press_cb){
-						curr_node_widget->long_press_cb(curr_node_widget, NULL);
+					if (curr_node_widget){
+						if (curr_node_widget->long_press_cb){
+							curr_node_widget->long_press_cb(curr_node_widget, NULL);
+						}
 					}
+					
                     break;
 
                 case SDLK_INSERT:
@@ -2602,21 +2732,38 @@ int SceneRun(void)
 				{
 				//放开后是否长按
 				case 1073741883:
-					get_rtc_time(&t_time, NULL);
-					t_curr = t_time.tv_sec - curtime.tv_sec;
-					if (t_curr >= 2){
-						if (curr_node_widget->long_press_cb)
-							curr_node_widget->long_press_cb(curr_node_widget, 1);
-					}
-					else{
-						curr_node_widget->confirm_cb(curr_node_widget, 2);
-					}
 
+					if (curr_node_widget){
+						LONG_PRESS_TIME(t_time, curtime, t_curr);
+						if (t_curr >= 2){
+							if (curr_node_widget->long_press_cb)
+								curr_node_widget->long_press_cb(curr_node_widget, 1);
+						}
+						else{
+							curr_node_widget->confirm_cb(curr_node_widget, 2);
+						}
+					}
+					break;
+					//放开关机长按
+				case 1073741885:
+					LONG_PRESS_TIME(t_time, curtime, t_curr);
+					//长按
+					if (t_curr >= 2){
+						if (yingxue_base.run_state == 1){
+							yingxue_base.run_state = 2;
+						}
+						else{
+							yingxue_base.run_state = 1;
+						}
+						ituLayerGoto(ituSceneFindWidget(&theScene, "welcom"));
+					}
 					break;
 				case 1073741886:
 					//出厂设置
-					printf("factory set\n");
-					ituLayerGoto(ituSceneFindWidget(&theScene, "Layer1"));
+					if (curr_node_widget){
+						ituLayerGoto(ituSceneFindWidget(&theScene, "Layer1"));
+					}
+					
 					break;
 				}
 
