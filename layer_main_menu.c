@@ -134,8 +134,14 @@ static void MainLayer_init()
 		char t_buf[100] = { 0 };
 		//计算下次预热时间
 		calcNextYure(&beg, &end);
-		if (end == 0) end = beg;
-		sprintf(t_buf, "%d:00--%d:59", beg, end);
+		if (beg == -1){
+			beg = 0;
+			end = 0;
+			sprintf(t_buf, "%d:00--%d:00", beg, end);
+		}
+		else{
+			sprintf(t_buf, "%d:00--%d:59", beg, end);
+		}
 		ituTextSetString(ituSceneFindWidget(&theScene, "Text35"), t_buf);
 		ituSpriteGoto(t_widget, 3);
 
@@ -190,7 +196,10 @@ static void yureLayer()
 	char t_buf[100] = { 0 };
 	//计算下次预热时间
 	calcNextYure(&beg, &end);
-	if (end == 0) end = beg;
+	if (beg == -1){
+		beg = 0;
+		end = 0;
+	}
 	sprintf(t_buf, "%02d--%02d", beg, end);
 	t_widget = ituSceneFindWidget(&theScene, "Text99");
 	ituTextSetString(t_widget, t_buf);
@@ -679,6 +688,7 @@ bool ERROnTimer(ITUWidget* widget, char* param)
 {
 	sleep(2);
 	if (yingxue_base.is_err == 0){
+		printf("err =0\r\n");
 		ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
 	}
 	return true;

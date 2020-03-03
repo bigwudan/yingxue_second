@@ -218,7 +218,7 @@ struct chain_list_tag chain_list;
 *@param p_chain_list 环形队列指针
 *@return
 */
-static int create_chain_list(struct chain_list_tag *p_chain_list)
+int create_chain_list(struct chain_list_tag *p_chain_list)
 {
 	//尾
 	p_chain_list->rear = 0;
@@ -235,7 +235,7 @@ static int create_chain_list(struct chain_list_tag *p_chain_list)
 *@param src 入队数据
 *@return 0满 1成功
 */
-static int in_chain_list(struct chain_list_tag *p_chain_list, unsigned char src)
+int in_chain_list(struct chain_list_tag *p_chain_list, unsigned char src)
 {
 	int position = (p_chain_list->rear + 1) % MAX_CHAIN_NUM;
 	//已经满
@@ -252,7 +252,7 @@ static int in_chain_list(struct chain_list_tag *p_chain_list, unsigned char src)
 *@param src 出队数据
 *@return 0空 1成功
 */
-static int out_chain_list(struct chain_list_tag *p_chain_list, unsigned char *src)
+int out_chain_list(struct chain_list_tag *p_chain_list, unsigned char *src)
 {
 	//空
 	if (p_chain_list->rear == p_chain_list->front){
@@ -276,6 +276,7 @@ unsigned short crc16_ccitt(const char *buf, int len)
 		crc = (crc << 8) ^ crc16tab[((crc >> 8) ^ *(char *)buf++) & 0x00FF];
 	return crc;
 }
+
 
 
 //计算下一次预约的时间
@@ -317,7 +318,7 @@ void calcNextYure(int *beg, int *end)
 		}
 		for (int j = num; j < 24; j++)
 		{
-			
+
 			//未开始计数，找到下一个起始
 			if (is_count == 0){
 				//连续中,如果有中断，置位
@@ -359,6 +360,7 @@ void calcNextYure(int *beg, int *end)
 	}
 	return;
 }
+
 //设置当前时间
 void set_rtc_time(unsigned char hour, unsigned char min)
 {
@@ -1153,6 +1155,7 @@ static void yingxue_base_init()
 	yingxue_base.eco_moshi.temp = 35;
 	yingxue_base.fruit_moshi.temp = 34;
 	yingxue_base.shezhi_temp = 35;
+	yingxue_base.is_err = 0;
 
 }
 
@@ -1867,6 +1870,9 @@ void process_frame(struct child_to_pthread_mq_tag *dst, const unsigned char *src
 		dst->err_no = *(old + 8);
 		//风机转速[0][10]
 		dst->wind_rate = *(old + 10);
+
+		//test
+		dst->is_err = 0;
 	}
 	else if (idx == 0x01){
 		//无需解析
@@ -1918,6 +1924,8 @@ static unsigned char win_test()
 //线程串口回调函数
 static void* UartFunc(void* arg)
 {
+	//记录当前时间
+	struct   timeval rev_time;
 	//主线程发送消息队列
 	struct main_pthread_mq_tag main_pthread_mq;
 	//缓存数据
@@ -1938,8 +1946,10 @@ static void* UartFunc(void* arg)
 	//默认应答
 	uint8_t texBufArray[11] = { 0 };
 	uint8_t backBufArray[11] = { 0xEB, 0x1B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0xD8, 0x2A };
-	
+	//初始化时间
+	get_rtc_time(&rev_time, NULL);
 	while (1){
+
 		memset(rece_buf, 0, sizeof(rece_buf));
 		//如果是win虚拟测试
 #ifdef _WIN32
@@ -1950,6 +1960,8 @@ static void* UartFunc(void* arg)
 #endif
 		//如果串口有数据
 		if (len > 0){
+			//记录当前收到数据的时间
+			get_rtc_time(&rev_time, NULL);
 			//写入环形缓存
 			for (int i = 0; i < len; i++){
 				flag = in_chain_list(&chain_list, rece_buf[i]);
@@ -1982,7 +1994,7 @@ static void* UartFunc(void* arg)
 				if (is_has){
 					struct timeval t_tm;
 					get_rtc_time(&t_tm, NULL);
-					printf("cur=%lu ", t_tm.tv_sec);
+					printf("cur=%lu ，cur=%lu", t_tm.tv_sec, t_tm.tv_sec);
 					LOG_WRITE_UART(texBufArray);
 					printf("\n\n");
 					write(UART_PORT, texBufArray, sizeof(texBufArray));
@@ -1992,6 +2004,25 @@ static void* UartFunc(void* arg)
 					write(UART_PORT, backBufArray, sizeof(texBufArray));
 				}
 			}
+		}
+		else{
+			struct timeval nodata_time;
+			get_rtc_time(&nodata_time, NULL);
+			//测试
+			//printf("rev=%lu,rev=%lu,", rev_time.tv_sec, rev_time.tv_sec);
+			//printf("no_time=%lu,no_time=%lu\r\n", nodata_time.tv_sec, nodata_time.tv_sec);
+			if ((nodata_time.tv_sec - rev_time.tv_sec) > 30){
+				printf("over time\n");
+				//发送错误信息
+				memset(&tm, 0, sizeof(struct timespec));
+				tm.tv_sec = 1;
+				child_to_pthread_mq.is_err = 1;
+				child_to_pthread_mq.err_no = 0xEC;
+				mq_timedsend(childQueue, &child_to_pthread_mq, sizeof(struct child_to_pthread_mq_tag), 1, &tm);
+			}
+
+
+		
 		}
 	}
 
@@ -2449,49 +2480,38 @@ static void CheckMouse(void)
 
 #endif // defined(CFG_USB_MOUSE) || defined(_WIN32)
 
-//测试
-void test_unit()
+unsigned long
+my_mktime(const unsigned int year0, const unsigned int mon0,
+const unsigned int day, const unsigned int hour,
+const unsigned int min, const unsigned int sec)
 {
-	int beg = 0;
-	int end = 0;
+	unsigned int mon = mon0, year = year0;
 
-	//yingxue_base.dingshi_list[0] = 1;
-	//yingxue_base.dingshi_list[1] = 1;
-	//yingxue_base.dingshi_list[2] = 1;
-	//yingxue_base.dingshi_list[3] = 1;
-	//yingxue_base.dingshi_list[4] = 1;
-	//yingxue_base.dingshi_list[5] = 1;
-	//yingxue_base.dingshi_list[6] = 1;
-	//yingxue_base.dingshi_list[7] = 1;
-	//yingxue_base.dingshi_list[8] = 1;
-	//yingxue_base.dingshi_list[9] = 1;
-	//yingxue_base.dingshi_list[10] = 1;
-	//yingxue_base.dingshi_list[11] = 0;
-	//yingxue_base.dingshi_list[12] = 1;
-	//yingxue_base.dingshi_list[13] = 1;
-	//yingxue_base.dingshi_list[14] = 1;
-	//yingxue_base.dingshi_list[15] = 1;
-	//yingxue_base.dingshi_list[16] = 1;
-	//yingxue_base.dingshi_list[17] = 1;
-	//yingxue_base.dingshi_list[18] = 1;
-	//yingxue_base.dingshi_list[19] = 1;
-	//yingxue_base.dingshi_list[20] = 1;
-	//yingxue_base.dingshi_list[21] = 1;
-	//yingxue_base.dingshi_list[22] = 1;
-	//yingxue_base.dingshi_list[23] = 1;
+	/* 1..12 -> 11,12,1..10 */
+	if (0 >= (int)(mon -= 2)) {
+		mon += 12;	/* Puts Feb last since it has leap day */
+		year -= 1;
+	}
 
-	
-
-
-	calcNextYure(&beg, &end);
-
-	printf("beg=%d,end=%d\n", beg, end);
-	sleep(1000);
+	return ((((unsigned long)
+		(year / 4 - year / 100 + year / 400 + 367 * mon / 12 + day) +
+		year * 365 - 719499
+		) * 24 + hour /* now have hours */
+		) * 60 + min /* now have minutes */
+		) * 60 + sec; /* finally seconds */
 }
+
+
+
 
 
 int SceneRun(void)
 {
+
+
+	yingxue_wifi_data_from_wifi();
+	sleep(1000);
+
     SDL_Event   ev;
     int         delay, frames, lastx, lasty;
     uint32_t    tick, dblclk, lasttick, mouseDownTick;
@@ -2542,12 +2562,8 @@ int SceneRun(void)
 	//基础数据初始化
 	yingxue_base_init();
 
-	//c测试
-	test_unit();
-
     for (;;)
     {
-		
         bool result = false;
 
         if (CheckQuitValue())
@@ -2578,6 +2594,17 @@ int SceneRun(void)
 
 		//樱雪
 		over_time_process();
+		//判断是否定时任务需要发送数据，并且接受子线程的数据
+		run_time_task();
+		if (yingxue_base.is_err){
+
+			if (yingxue_base.err_no == 0xEC){
+				printf("show err\r\n");
+				ituLayerGoto(ituSceneFindWidget(&theScene, "ECLayer"));
+			}
+		}
+
+
 
 		//判断是否有错误代码
 		/*if (yingxue_base.is_err){
@@ -2617,8 +2644,7 @@ int SceneRun(void)
 
 		}*/
 
-		//判断是否定时任务需要发送数据
-		run_time_task();
+
 
 #ifdef CFG_LCD_ENABLE
         while (SDL_PollEvent(&ev))

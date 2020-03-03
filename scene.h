@@ -294,7 +294,15 @@ void processCmdToCtrData(unsigned char cmd, unsigned char data_1,
 									    arr.is_err,arr.wind_rate,arr.fa_num,arr.dh_num,arr.ph_num,arr.ne_num,arr.huishui_temp);}while(0);
 
 //获取长按的时间
-#define LONG_PRESS_TIME(a, b, c) 	do{get_rtc_time(&a, NULL);c = a.tv_sec - b.tv_sec;}while(0)					
+#define LONG_PRESS_TIME(a, b, c) 	do{get_rtc_time(&a, NULL);c = a.tv_sec - b.tv_sec;}while(0)		
+
+//创建环形队列
+int create_chain_list(struct chain_list_tag *p_chain_list);
+//进入队列
+int in_chain_list(struct chain_list_tag *p_chain_list, unsigned char src);
+//出队列
+int out_chain_list(struct chain_list_tag *p_chain_list, unsigned char *src);
+
 #ifdef __cplusplus
 }
 #endif
