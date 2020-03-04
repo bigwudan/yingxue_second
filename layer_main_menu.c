@@ -538,6 +538,8 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 //樱雪主页面定时任务
 bool MainLayerOnTimer(ITUWidget* widget, char* param)
 {
+	//frame
+	int frame_num = 0;
 	//1秒运行一次
 	static struct timeval last_tm;
 	//闪烁的时间
@@ -639,6 +641,56 @@ bool MainLayerOnTimer(ITUWidget* widget, char* param)
 				t_widget = ituSceneFindWidget(&theScene, "Background36");
 				ituWidgetSetVisible(t_widget, false);
 			}
+
+			//模式 0 常规 1超热 2 eco 3水果
+			t_widget = ituSceneFindWidget(&theScene, "moshiSprite");
+
+			if (yingxue_base.moshi_mode == 0 || yingxue_base.moshi_mode == 1){
+				ituSpriteGoto(t_widget, 0);
+			}
+			else if (yingxue_base.moshi_mode == 2){
+				ituSpriteGoto(t_widget, 1);
+			}
+			else if (yingxue_base.moshi_mode == 3){
+				ituSpriteGoto(t_widget, 2);
+			}
+			else if (yingxue_base.moshi_mode == 4){
+				ituSpriteGoto(t_widget, 3);
+			}
+
+			//预热模式 0 预热 1单巡航 2全天候巡航 3下次预热时间
+			t_widget = ituSceneFindWidget(&theScene, "yureSprite");
+
+			if (yingxue_base.yure_mode == 0){
+				ituSpriteGoto(t_widget, 0);
+			}
+			else if (yingxue_base.yure_mode == 1){
+				ituSpriteGoto(t_widget, 1);
+			}
+			else if (yingxue_base.yure_mode == 2){
+				ituSpriteGoto(t_widget, 2);
+			}
+			else if (yingxue_base.yure_mode == 3){
+				int beg = 0;
+				int end = 0;
+				char t_buf[100] = { 0 };
+				//计算下次预热时间
+				calcNextYure(&beg, &end);
+				if (beg == -1){
+					beg = 0;
+					end = 0;
+					sprintf(t_buf, "%d:00--%d:00", beg, end);
+				}
+				else{
+					sprintf(t_buf, "%d:00--%d:59", beg, end);
+				}
+				ituTextSetString(ituSceneFindWidget(&theScene, "Text35"), t_buf);
+				ituSpriteGoto(t_widget, 3);
+
+			}
+			
+			
+
 
 		}
 	}

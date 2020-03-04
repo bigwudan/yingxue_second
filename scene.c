@@ -2797,6 +2797,29 @@ int SceneRun(void)
 					test3_mq.len = 5;
 					mq_timedsend(test_mq, &test3_mq, sizeof(struct wifi_uart_mq_tag), 1, NULL);
 					break;
+				case 53: //¼üÅÌ1 ·¢ËÍÃüÁî
+					printf("keypad 5\n");
+					//fc 00 08 07 00 04 00 12 00 00 00 03 24
+					struct wifi_uart_mq_tag test4_mq;
+					test4_mq.data[0] = 0xfc;
+					test4_mq.data[1] = 0x00;
+					test4_mq.data[2] = 0x08;
+					test4_mq.data[3] = 0x07;
+					test4_mq.data[4] = 0x00;
+					test4_mq.data[5] = 0x04;
+					test4_mq.data[6] = 0x00;
+					test4_mq.data[7] = 0x6d;//ÃüÁîid
+					test4_mq.data[8] = 0x00;
+					test4_mq.data[9] = 0x00;
+					test4_mq.data[10] = 0x00;
+					test4_mq.data[11] = 0x12;//ÃüÁîÊı
+					test4_mq.data[12] = 0x24;
+
+
+
+					test4_mq.len = 13;
+					mq_timedsend(test_mq, &test4_mq, sizeof(struct wifi_uart_mq_tag), 1, NULL);
+					break;
                 case SDLK_e:
                     result |= ituSceneUpdate(&theScene, ITU_EVENT_TOUCHPINCH, 20, 30, 40);
                     break;

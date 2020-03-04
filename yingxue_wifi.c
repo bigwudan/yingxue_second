@@ -1,7 +1,7 @@
 ﻿#include "yingxue_wifi.h"
 #include "scene.h"
 #include <mqueue.h>
-
+#include "ite/itp.h"
 
 #ifdef _WIN32
 //测试
@@ -9,7 +9,7 @@ extern mqd_t test_mq;
 
 
 #endif
-
+extern ITUScene  theScene;
 extern struct yingxue_base_tag yingxue_base;
 extern mqd_t toWifiQueue;
 //测试数据
@@ -72,7 +72,7 @@ yingxue_wifi_data_check(struct wifi_cache_tag *wifi_cache, struct wifi_frame_tag
 	GET_CHECK_VAL(wifi_cache, check_no);
 
 	//验证码错误
-	if (check_no != p_data[wifi_cache->idx - 1]){
+	if (  0 && check_no != p_data[wifi_cache->idx - 1]){
 		CLEAN_WIFI_CACHE(wifi_cache);
 		return 0;
 	}
@@ -160,13 +160,18 @@ yingxue_wifi_process_command(struct wifi_frame_tag *wifi_frame)
 	if (command_id == WIFI_CTR_OPEN){
 		//关机
 		if (command == 0){
+			yingxue_base.run_state = 2;
 			SEND_OPEN_CMD();
 		}
 		//开机
 		else{
+			yingxue_base.run_state = 1;
 			SEND_OPEN_CMD();
 		}
 		
+
+		ituLayerGoto(ituSceneFindWidget(&theScene, "welcom"));
+
 	}
 	//选择模式0：常规模式1：果蔬模式2：ECO模式
 	else if (command_id == WIFI_CTR_MODE){
@@ -244,6 +249,7 @@ yingxue_wifi_process_command(struct wifi_frame_tag *wifi_frame)
 				yingxue_base.dingshi_list[i] = 0;
 			}
 		}
+
 	}
 	BACK_COMMAND_SUCCESS(command_id, 0x01);
 }
