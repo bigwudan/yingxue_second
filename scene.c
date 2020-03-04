@@ -11,6 +11,7 @@
 #include "ite/itp.h"
 #include "scene.h"
 #include "ctrlboard.h"
+#include "yingxue_wifi.h"
 
 #ifdef _WIN32
     #include <crtdbg.h>
@@ -117,6 +118,8 @@ mqd_t uartQueue = -1;
 //子线程向主线程发送
 mqd_t childQueue = -1;
 
+//发送wifi模块数据
+mqd_t toWifiQueue = -1;
 
 //是否已经处理超时 0 未处理 1 已经处理
 unsigned char is_deal_over_time;
@@ -218,7 +221,7 @@ struct chain_list_tag chain_list;
 *@param p_chain_list 环形队列指针
 *@return
 */
-int create_chain_list(struct chain_list_tag *p_chain_list)
+static int create_chain_list(struct chain_list_tag *p_chain_list)
 {
 	//尾
 	p_chain_list->rear = 0;
@@ -235,7 +238,7 @@ int create_chain_list(struct chain_list_tag *p_chain_list)
 *@param src 入队数据
 *@return 0满 1成功
 */
-int in_chain_list(struct chain_list_tag *p_chain_list, unsigned char src)
+static int in_chain_list(struct chain_list_tag *p_chain_list, unsigned char src)
 {
 	int position = (p_chain_list->rear + 1) % MAX_CHAIN_NUM;
 	//已经满
@@ -252,7 +255,7 @@ int in_chain_list(struct chain_list_tag *p_chain_list, unsigned char src)
 *@param src 出队数据
 *@return 0空 1成功
 */
-int out_chain_list(struct chain_list_tag *p_chain_list, unsigned char *src)
+static int out_chain_list(struct chain_list_tag *p_chain_list, unsigned char *src)
 {
 	//空
 	if (p_chain_list->rear == p_chain_list->front){
@@ -2502,15 +2505,36 @@ const unsigned int min, const unsigned int sec)
 }
 
 
+static void 
+mq_init()
+{
+	//消息队列
+	struct mq_attr mq_uart_attr;
+	mq_uart_attr.mq_flags = 0;
+	mq_uart_attr.mq_maxmsg = 10;
+	mq_uart_attr.mq_msgsize = sizeof(struct main_pthread_mq_tag);
+	uartQueue = mq_open("scene_1", O_CREAT | O_NONBLOCK, 0644, &mq_uart_attr);
 
+	struct mq_attr mq_child_attr;
+	mq_child_attr.mq_flags = 0;
+	mq_child_attr.mq_maxmsg = 20;
+
+	mq_child_attr.mq_msgsize = sizeof(struct child_to_pthread_mq_tag);
+	childQueue = mq_open("scene_2", O_CREAT | O_NONBLOCK, 0644, &mq_child_attr);
+
+
+	//发送到wifi模块队列mqd_t toWifiQueue = -1;
+	struct mq_attr mq_wifi_attr;
+	mq_wifi_attr.mq_flags = 0;
+	mq_wifi_attr.mq_maxmsg = 20;
+
+	mq_wifi_attr.mq_msgsize = sizeof(struct wifi_uart_mq_tag);
+	toWifiQueue = mq_open("scene_3", O_CREAT | O_NONBLOCK, 0644, &mq_wifi_attr);
+}
 
 
 int SceneRun(void)
 {
-
-
-	yingxue_wifi_data_from_wifi();
-	sleep(1000);
 
     SDL_Event   ev;
     int         delay, frames, lastx, lasty;
@@ -2530,20 +2554,9 @@ int SceneRun(void)
 	ioctl(UART_PORT, ITP_IOCTL_RESET, (void *)CFG_UART3_BAUDRATE);
 #endif
 
+	//初始化队列
+	mq_init();
 
-	//消息队列
-	struct mq_attr mq_uart_attr;
-	mq_uart_attr.mq_flags = 0;
-	mq_uart_attr.mq_maxmsg = 10;
-	mq_uart_attr.mq_msgsize = sizeof(struct main_pthread_mq_tag);
-	uartQueue = mq_open("scene_1", O_CREAT | O_NONBLOCK, 0644, &mq_uart_attr);
-
-	struct mq_attr mq_child_attr;
-	mq_child_attr.mq_flags = 0;
-	mq_child_attr.mq_maxmsg = 20;
-
-	mq_child_attr.mq_msgsize = sizeof(struct child_to_pthread_mq_tag);
-	childQueue = mq_open("scene_2", O_CREAT | O_NONBLOCK, 0644, &mq_child_attr);
 
 
 	//收发串口线程
@@ -2644,6 +2657,8 @@ int SceneRun(void)
 
 		}*/
 
+		//wifi模块通讯
+		yingxue_wifi_task();
 
 
 #ifdef CFG_LCD_ENABLE
