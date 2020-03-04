@@ -6,7 +6,10 @@
 #include "ctrlboard.h"
 #include "ite/itu.h"
 #include "ite/itp.h"
+#include "yingxue_wifi.h"
 
+//wifi信息
+extern struct wifi_base_tag wifi_base_g;
 
 //当前选中的空间
 extern struct node_widget *curr_node_widget;
@@ -101,6 +104,10 @@ char is_shake;
 static void MainLayer_init()
 {
 	ITUWidget *t_widget = NULL;
+	//隐藏wifi图标
+	t_widget = ituSceneFindWidget(&theScene, "Background15");
+	ituWidgetSetVisible(t_widget, false);
+
 	//全部隐藏边框
 	t_widget = ituSceneFindWidget(&theScene, "Background100");
 	ituWidgetSetVisible(t_widget, false);
@@ -586,6 +593,13 @@ bool MainLayerOnTimer(ITUWidget* widget, char* param)
 			sprintf(t_buf, "%d", yingxue_base.chushui_temp);
 			t_widget = ituSceneFindWidget(&theScene, "Text17");
 			ituTextSetString(t_widget, t_buf);
+
+			//显示wifi
+			if (wifi_base_g.online_state & 0x01){
+				t_widget = ituSceneFindWidget(&theScene, "Background15");
+				ituWidgetSetVisible(t_widget, true);
+			}
+
 
 			//Background34
 			if (yingxue_base.state_show & 0x01){

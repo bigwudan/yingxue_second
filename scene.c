@@ -76,6 +76,13 @@ static int          periodPerFrame;
 static ITUIcon      *cursorIcon;
 #endif
 
+#ifdef _WIN32
+//定义测试数据
+//发送wifi模块数据
+mqd_t test_mq;
+#endif
+
+
 extern void ScreenSetDoubleClick(void);
 //樱雪crc效验数组
 static const unsigned short crc16tab[256] = {
@@ -1973,8 +1980,8 @@ static void* UartFunc(void* arg)
 			//已经完成
 			if (uart_data.state == 2){
 
-				LOG_RECE_UART(uart_data.buf_data);
-				printf("\n\n");
+				//LOG_RECE_UART(uart_data.buf_data);
+				//printf("\n\n");
 
 				//打印结束
 				is_has = 0;
@@ -2530,6 +2537,21 @@ mq_init()
 
 	mq_wifi_attr.mq_msgsize = sizeof(struct wifi_uart_mq_tag);
 	toWifiQueue = mq_open("scene_3", O_CREAT | O_NONBLOCK, 0644, &mq_wifi_attr);
+
+
+#ifdef _WIN32
+	//测试数据结构依据wifi
+	struct mq_attr test_mq_attr;
+	test_mq_attr.mq_flags = 0;
+	test_mq_attr.mq_maxmsg = 20;
+
+	test_mq_attr.mq_msgsize = sizeof(struct wifi_uart_mq_tag);
+	test_mq = mq_open("scene_test", O_CREAT | O_NONBLOCK, 0644, &mq_wifi_attr);
+
+
+#endif
+
+
 }
 
 
@@ -2732,6 +2754,49 @@ int SceneRun(void)
                     break;
 
     #ifdef _WIN32
+				case 49: //键盘1 发送ack
+					printf("keypad 1 ack\n");
+					struct wifi_uart_mq_tag test2_mq;
+					test2_mq.data[0] = 0xfc;
+					test2_mq.data[1] = 0x00;
+					test2_mq.data[2] = 0x00;
+					test2_mq.data[3] = 0x00;
+					test2_mq.data[4] = 0xfc;
+					test2_mq.len = 5;
+					mq_timedsend(test_mq, &test2_mq, sizeof(struct wifi_uart_mq_tag), 1, NULL);
+					break;
+				case 50: //键盘2 发送配网
+					printf("keypad 2\n");
+
+					yingxue_wifi_to_wifi(WIFI_CMD_NET, 0, 0);
+					break;
+				case 51: //键盘3 发送心跳fc 00 02 03 05 00 06
+					printf("keypad 3\n");
+
+					struct wifi_uart_mq_tag test1_mq;
+					test1_mq.data[0] = 0xfc;
+					test1_mq.data[1] = 0x00;
+					test1_mq.data[2] = 0x02;
+					test1_mq.data[3] = 0x03;
+					test1_mq.data[4] = 0x05;
+					test1_mq.data[5] = 0x00;
+					test1_mq.data[6] = 0x06;
+					test1_mq.len = 7;
+					mq_timedsend(test_mq, &test1_mq, sizeof(struct wifi_uart_mq_tag), 1, NULL);
+					break;
+				case 52: //键盘1 发送数据查询
+					printf("keypad 4\n");
+
+					struct wifi_uart_mq_tag test3_mq;
+					test3_mq.data[0] = 0xfc;
+					test3_mq.data[1] = 0x00;
+					test3_mq.data[2] = 0x00;
+					test3_mq.data[3] = 0x04;
+					test3_mq.data[4] = 0x00;
+
+					test3_mq.len = 5;
+					mq_timedsend(test_mq, &test3_mq, sizeof(struct wifi_uart_mq_tag), 1, NULL);
+					break;
                 case SDLK_e:
                     result |= ituSceneUpdate(&theScene, ITU_EVENT_TOUCHPINCH, 20, 30, 40);
                     break;
