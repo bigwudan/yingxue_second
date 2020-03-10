@@ -107,7 +107,6 @@ static void MainLayer_init()
 	//隐藏wifi图标
 	t_widget = ituSceneFindWidget(&theScene, "Background15");
 	ituWidgetSetVisible(t_widget, false);
-
 	//全部隐藏边框
 	t_widget = ituSceneFindWidget(&theScene, "Background100");
 	ituWidgetSetVisible(t_widget, false);
@@ -223,6 +222,14 @@ static void yureshijianLayer()
 	ituWidgetSetVisible(t_widget, true);
 	t_widget = ituSceneFindWidget(&theScene, curr_node_widget->name);
 	ituWidgetSetVisible(t_widget, false);
+
+	//测试时间参数
+
+	uint8_t *dingshi = yingxue_base.dingshi_list;
+
+
+
+
 
 }
 
@@ -500,7 +507,6 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 	static int test_flag = 0;
 	ITUWidget *t_widget = NULL;
 	char t_buf[10] = { 0 };
-
 	//welcome页面
 	if (strcmp(widget->name, "welcom") == 0){
 		curr_node_widget = NULL;
@@ -538,8 +544,6 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 //樱雪主页面定时任务
 bool MainLayerOnTimer(ITUWidget* widget, char* param)
 {
-	//frame
-	int frame_num = 0;
 	//1秒运行一次
 	static struct timeval last_tm;
 	//闪烁的时间
@@ -602,7 +606,6 @@ bool MainLayerOnTimer(ITUWidget* widget, char* param)
 				ituWidgetSetVisible(t_widget, true);
 			}
 
-
 			//Background34
 			if (yingxue_base.state_show & 0x01){
 				//显示
@@ -641,6 +644,7 @@ bool MainLayerOnTimer(ITUWidget* widget, char* param)
 				t_widget = ituSceneFindWidget(&theScene, "Background36");
 				ituWidgetSetVisible(t_widget, false);
 			}
+
 
 			//模式 0 常规 1超热 2 eco 3水果
 			t_widget = ituSceneFindWidget(&theScene, "moshiSprite");
@@ -688,10 +692,6 @@ bool MainLayerOnTimer(ITUWidget* widget, char* param)
 				ituSpriteGoto(t_widget, 3);
 
 			}
-			
-			
-
-
 		}
 	}
 	get_rtc_time(&last_tm, NULL);
@@ -701,6 +701,7 @@ bool MainLayerOnTimer(ITUWidget* widget, char* param)
 //开机画面定时器
 bool WelcomeOnTimer(ITUWidget* widget, char* param)
 {
+	ituLayerGoto(ituSceneFindWidget(&theScene, "yureshijianLayer"));
 	//是否已经动作
 	static unsigned char flag;
 	static unsigned char count;

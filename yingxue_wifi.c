@@ -97,44 +97,60 @@ yingxue_wifi_data_check(struct wifi_cache_tag *wifi_cache, struct wifi_frame_tag
 int 
 yingxue_wifi_data_from_wifi()
 {
-	uint8_t rece_buf[60];
+	uint8_t rece_buf[] = { 0x02, 0x00, 0x00, 0xFC, 0x00, 0x00, 0x00, 0xFC, 0xFC, 0x00, 0x02, 0x03, 0x00, 0x01, 0x02, 0xFC, 0x00, 0x00, 0x04, 0x00, 0xFC, 0x00, 0x02, 0x03, 0x00, 0x02, 0x03, 0xFC, 0x00, 0x00, 0x04, 0x00, 0xFC, 0x00, 0x00, 0x04, 0x00 };
 	uint8_t len = 0;
 	uint8_t flag = 0;
 #ifdef _WIN32
 	//读出的数据进入环形队列
 	//in_chain_list(p_chain_list, data);
-	struct wifi_uart_mq_tag wifi_uart_mq;
+/*	struct wifi_uart_mq_tag wifi_uart_mq;
 	flag = mq_receive(test_mq, &wifi_uart_mq, sizeof(struct wifi_uart_mq_tag), NULL);
 	if (flag > 0){
 		len = wifi_uart_mq.len;
 		memmove(rece_buf, wifi_uart_mq.data, len);
-	}
+	}*/
+
+	len = sizeof(rece_buf);
+
 
 #else
 #endif
 	//如果接受到数据进入分析
-	if (len){
+	if (len > 0){
 		for (int i = 0; i < len; i++){
-			//写入缓存
-			wifi_cache_g.data[wifi_cache_g.idx] = rece_buf[i];
-			wifi_cache_g.idx += 1;
-			//写入数据长度
-			if (wifi_cache_g.idx == 4){
-				wifi_cache_g.data_len = (wifi_cache_g.data[1] << 8) | (wifi_cache_g.data[2]);
+
+	
+
+			//是否是第一次遇到0xfc
+			if ( (wifi_cache_g.idx == 0 && rece_buf[i] == 0xfc) ||
+				  (wifi_cache_g.idx  > 0))
+			{
+				//写入缓存
+				wifi_cache_g.data[wifi_cache_g.idx] = rece_buf[i];
+				wifi_cache_g.idx += 1;
+				//写入数据长度
+				if (wifi_cache_g.idx == 4){
+					wifi_cache_g.data_len = (wifi_cache_g.data[1] << 8) | (wifi_cache_g.data[2]);
+				}
+				//数据读取完成,头+命令+长度+效验 = 5
+				if (wifi_cache_g.idx == 5 + wifi_cache_g.data_len){
+					//进入数据校正
+					flag = yingxue_wifi_data_check(&wifi_cache_g, &wifi_frame_g);
+				}
+				//超过最大值舍去所有数据
+				if (wifi_cache_g.idx >= MAX_CACHE_NUM){
+					CLEAN_WIFI_CACHE((&wifi_cache_g));
+				}
+				//如果得到一个完整的帧，开始分析帧
+				if (flag == 1){
+					//return 1;
+					printf("wudan\n");
+				}
 			}
-			//数据读取完成,头+命令+长度+效验 = 5
-			if (wifi_cache_g.idx == 5 + wifi_cache_g.data_len){
-				//进入数据校正
-				flag = yingxue_wifi_data_check(&wifi_cache_g, &wifi_frame_g);
-			}
-			//超过最大值舍去所有数据
-			if (wifi_cache_g.idx >= MAX_CACHE_NUM){
-				CLEAN_WIFI_CACHE((&wifi_cache_g));
-			}
-			//如果得到一个完整的帧，开始分析帧
-			if (flag == 1){
-				return 1;
-			}
+			
+
+
+
 		}
 	}
 	return 0;
@@ -254,7 +270,7 @@ yingxue_wifi_process_command(struct wifi_frame_tag *wifi_frame)
 	BACK_COMMAND_SUCCESS(command_id, 0x01);
 }
 
-//单片机回复数据
+//单片机回复 数据
 //@param cmd_state 命令
 //@param state_id 状态ID
 //@param data     上传状态下的数据

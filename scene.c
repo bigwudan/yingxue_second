@@ -82,7 +82,6 @@ static ITUIcon      *cursorIcon;
 mqd_t test_mq;
 #endif
 
-
 extern void ScreenSetDoubleClick(void);
 //樱雪crc效验数组
 static const unsigned short crc16tab[256] = {
@@ -124,7 +123,6 @@ mqd_t uartQueue = -1;
 
 //子线程向主线程发送
 mqd_t childQueue = -1;
-
 //发送wifi模块数据
 mqd_t toWifiQueue = -1;
 
@@ -1980,8 +1978,8 @@ static void* UartFunc(void* arg)
 			//已经完成
 			if (uart_data.state == 2){
 
-				//LOG_RECE_UART(uart_data.buf_data);
-				//printf("\n\n");
+				LOG_RECE_UART(uart_data.buf_data);
+				printf("\n\n");
 
 				//打印结束
 				is_has = 0;
@@ -2512,7 +2510,7 @@ const unsigned int min, const unsigned int sec)
 }
 
 
-static void 
+static void
 mq_init()
 {
 	//消息队列
@@ -2555,9 +2553,9 @@ mq_init()
 }
 
 
+
 int SceneRun(void)
 {
-
     SDL_Event   ev;
     int         delay, frames, lastx, lasty;
     uint32_t    tick, dblclk, lasttick, mouseDownTick;
@@ -2576,8 +2574,11 @@ int SceneRun(void)
 	ioctl(UART_PORT, ITP_IOCTL_RESET, (void *)CFG_UART3_BAUDRATE);
 #endif
 
+
+	//消息队列
 	//初始化队列
 	mq_init();
+
 
 
 
@@ -2682,7 +2683,6 @@ int SceneRun(void)
 		//wifi模块通讯
 		yingxue_wifi_task();
 
-
 #ifdef CFG_LCD_ENABLE
         while (SDL_PollEvent(&ev))
         {
@@ -2754,6 +2754,7 @@ int SceneRun(void)
                     break;
 
     #ifdef _WIN32
+
 				case 49: //键盘1 发送ack
 					printf("keypad 1 ack\n");
 					struct wifi_uart_mq_tag test2_mq;
