@@ -222,14 +222,233 @@ static void yureshijianLayer()
 	ituWidgetSetVisible(t_widget, true);
 	t_widget = ituSceneFindWidget(&theScene, curr_node_widget->name);
 	ituWidgetSetVisible(t_widget, false);
-
-	//测试时间参数
-
 	uint8_t *dingshi = yingxue_base.dingshi_list;
+	for (int i = 0; i < 24; i++){
+		//找到对应的数据
 
+		switch (i)
+		{
+		case 0:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox2");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 1:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox5");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 2:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox31");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 3:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox32");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 4:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox59");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 5:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox58");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 6:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox57");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 7:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox56");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 8:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox75");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 9:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox74");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 10:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox73");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 11:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox72");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 12:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox67");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 13:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox66");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 14:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox65");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 15:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox64");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 16:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox92");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 17:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox91");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 18:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox90");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 19:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox89");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 20:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox83");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 21:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox82");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 22:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox81");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		case 23:
+			t_widget = ituSceneFindWidget(&theScene, "RadioBox80");
+			if (dingshi[i] == 0){
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, false);
+			}
+			else{
+				ituCheckBoxSetChecked((ITUCheckBox *)t_widget, true);
+			}
+			break;
+		default:
+			break;
+		}
 
-
-
+	}
 
 }
 
@@ -507,43 +726,284 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 	static int test_flag = 0;
 	ITUWidget *t_widget = NULL;
 	char t_buf[10] = { 0 };
+
 	//welcome页面
 	if (strcmp(widget->name, "welcom") == 0){
 		curr_node_widget = NULL;
+		yingxue_base.curr_layer = WELCOM;
 	}
 	//MainLayer 首页
 	else if (strcmp(widget->name, "MainLayer") == 0){
+		yingxue_base.curr_layer = MAINLAYER;
 		MainLayer_init();
 	}
 	//预热页面
 	else if (strcmp(widget->name, "yureLayer") == 0){
+		yingxue_base.curr_layer = YURELAYER;
 		yureLayer();
 	}
 	//预热时间设置
 	else if (strcmp(widget->name, "yureshijianLayer") == 0){
+		yingxue_base.curr_layer = YURESHIJIANLAYER;
 		yureshijianLayer();
 	}
 	//预热设置 温度，北京时间yureshezhiLayer
 	else if (strcmp(widget->name, "yureshezhiLayer") == 0){
+		yingxue_base.curr_layer = YURESHEZHILAYER;
 		yureshezhiLayer();
 	}
 	else if (strcmp(widget->name, "moshiLayer") == 0){
+		yingxue_base.curr_layer = MOSHILAYER;
 		moshiLayer();
 	}
 	//chushui
 	else if (strcmp(widget->name, "chushui") == 0){
+		yingxue_base.curr_layer = CHUSHUI;
 		chushui();
 	}
 	else if (strcmp(widget->name, "Layer1") == 0){
+		yingxue_base.curr_layer = LAYER1;
 		Layer1();
 	}
 	return true;
 
 }
 
+
+//轮询欢迎页面
+void 
+polling_welcom()
+{
+	//是否已经动作 0第一次开始 1第一次中 2开机开始 3开机中 4关机开始 5关机中
+	static unsigned char flag = 0;
+	static unsigned char count;
+	static struct timeval rec_time;
+	//第一次上电
+	if (yingxue_base.run_state == 0){
+		//第一次已经结束
+		if (flag == 0){
+			printf("first on\n");
+			SEND_OPEN_CMD();
+			//记录时间
+			get_rtc_cache_time(&rec_time, NULL);
+			flag = 1; //开机中
+		}
+		else{
+			if (yingxue_base.cache_time.tv_sec >= rec_time.tv_sec + 2){
+				printf("first close\n");
+				yingxue_base.run_state = 1;
+				ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
+				flag = 2; //开机开始
+			}
+		}
+	}
+	//关机
+	else if (yingxue_base.run_state == 2){
+		//开机开始
+		if (flag == 2){
+			printf("open on\n");
+			SEND_CLOSE_CMD();
+			//记录时间
+			get_rtc_cache_time(&rec_time, NULL);
+			flag = 3;
+		}
+		else if(3 == flag){
+			if (yingxue_base.cache_time.tv_sec >= rec_time.tv_sec + 2){
+				printf("open close\n");
+				ioctl(ITP_DEVICE_BACKLIGHT, ITP_IOCTL_OFF, NULL);
+				flag = 4; //关机开始
+			}
+
+		}
+	}//开机
+	else if (yingxue_base.run_state == 1){
+		if (flag == 4){
+			printf("close on\n");
+			ioctl(ITP_DEVICE_BACKLIGHT, ITP_IOCTL_ON, NULL);
+			//开机
+			SEND_OPEN_CMD();
+			//记录时间
+			get_rtc_cache_time(&rec_time, NULL);
+			flag = 5;//关机中
+		}
+		else if(5 == flag){
+			if (yingxue_base.cache_time.tv_sec >= rec_time.tv_sec + 2){
+				printf("close close\n");
+				ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
+				flag = 2; //开机开始
+			}
+		}
+	}
+}
+
+//轮询欢迎页面
+void
+polling_main()
+{
+	//1秒运行一次
+	static struct timeval last_tm;
+	//闪烁的时间
+	static struct timeval during_tm;
+	//struct timeval now_tm;
+	char t_buf[20] = { 0 };
+	ITUWidget* t_widget;
+	//get_rtc_time(&now_tm, NULL);
+	if (yingxue_base.cache_time.tv_sec < last_tm.tv_sec + 1){
+		return true;
+	}
+
+	//如何闪烁
+	if (is_shake == 1){
+		//得到当前时间
+		if (yingxue_base.adjust_temp_state == 1){
+			memmove(&during_tm, &yingxue_base.cache_time,  sizeof(struct timeval));
+		}
+		//开始闪烁
+		yingxue_base.adjust_temp_state = 2;
+		t_widget = (ITUWidget*)ituSceneFindWidget(&theScene, "Text17");
+		//大于7秒，闪烁结束
+		if (yingxue_base.cache_time.tv_sec > during_tm.tv_sec + 5){
+			yingxue_base.adjust_temp_state = 0;
+			if (t_widget->visible == 0){
+				ituWidgetSetVisible(t_widget, true);
+			}
+			//时间归零
+			memset(&during_tm, 0, sizeof(struct timeval));
+			//初始化
+			yingxue_base.adjust_temp_state = 0;
+			is_shake = 0;
+			//显示出水温度
+			sprintf(t_buf, "%d", yingxue_base.chushui_temp);
+			ituWidgetSetVisible(t_widget, true);
+			t_widget = ituSceneFindWidget(&theScene, "Text17");
+			ituTextSetString(t_widget, t_buf);
+		}
+		else{
+			if (t_widget){
+				if (t_widget->visible == 0){
+					ituWidgetSetVisible(t_widget, true);
+				}
+				else{
+					ituWidgetSetVisible(t_widget, false);
+				}
+			}
+		}
+	}
+	else{
+		if (yingxue_base.adjust_temp_state == 0 || yingxue_base.adjust_temp_state == 3){
+			//显示出水温度
+			sprintf(t_buf, "%d", yingxue_base.chushui_temp);
+			t_widget = ituSceneFindWidget(&theScene, "Text17");
+			ituTextSetString(t_widget, t_buf);
+
+			//显示wifi
+			if (wifi_base_g.online_state & 0x01){
+				t_widget = ituSceneFindWidget(&theScene, "Background15");
+				ituWidgetSetVisible(t_widget, true);
+			}
+			else{
+				t_widget = ituSceneFindWidget(&theScene, "Background15");
+				ituWidgetSetVisible(t_widget, false);
+			}
+
+			//Background34
+			if (yingxue_base.state_show & 0x01){
+				//显示
+				t_widget = ituSceneFindWidget(&theScene, "Background34");
+				ituWidgetSetVisible(t_widget, true);
+
+			}
+			else{
+				//不显示
+				t_widget = ituSceneFindWidget(&theScene, "Background34");
+				ituWidgetSetVisible(t_widget, false);
+			}
+
+			//Background35
+			if (yingxue_base.state_show & 0x04){
+				//显示
+				t_widget = ituSceneFindWidget(&theScene, "Background35");
+				ituWidgetSetVisible(t_widget, true);
+
+			}
+			else{
+				//不显示
+				t_widget = ituSceneFindWidget(&theScene, "Background35");
+				ituWidgetSetVisible(t_widget, false);
+			}
+
+			//Background36
+			if (yingxue_base.state_show & 0x02){
+				//显示
+				t_widget = ituSceneFindWidget(&theScene, "Background36");
+				ituWidgetSetVisible(t_widget, true);
+
+			}
+			else{
+				//不显示
+				t_widget = ituSceneFindWidget(&theScene, "Background36");
+				ituWidgetSetVisible(t_widget, false);
+			}
+
+
+			//模式 0 常规 1超热 2 eco 3水果
+			t_widget = ituSceneFindWidget(&theScene, "moshiSprite");
+
+			if (yingxue_base.moshi_mode == 0 || yingxue_base.moshi_mode == 1){
+				ituSpriteGoto(t_widget, 0);
+			}
+			else if (yingxue_base.moshi_mode == 2){
+				ituSpriteGoto(t_widget, 1);
+			}
+			else if (yingxue_base.moshi_mode == 3){
+				ituSpriteGoto(t_widget, 2);
+			}
+			else if (yingxue_base.moshi_mode == 4){
+				ituSpriteGoto(t_widget, 3);
+			}
+
+			//预热模式 0 预热 1单巡航 2全天候巡航 3下次预热时间
+			t_widget = ituSceneFindWidget(&theScene, "yureSprite");
+
+			if (yingxue_base.yure_mode == 0){
+				ituSpriteGoto(t_widget, 0);
+			}
+			else if (yingxue_base.yure_mode == 1){
+				ituSpriteGoto(t_widget, 1);
+			}
+			else if (yingxue_base.yure_mode == 2){
+				ituSpriteGoto(t_widget, 2);
+			}
+			else if (yingxue_base.yure_mode == 3){
+				int beg = 0;
+				int end = 0;
+				char t_buf[100] = { 0 };
+				//计算下次预热时间
+				calcNextYure(&beg, &end);
+				if (beg == -1){
+					beg = 0;
+					end = 0;
+					sprintf(t_buf, "%d:00--%d:00", beg, end);
+				}
+				else{
+					sprintf(t_buf, "%d:00--%d:59", beg, end);
+				}
+				ituTextSetString(ituSceneFindWidget(&theScene, "Text35"), t_buf);
+				ituSpriteGoto(t_widget, 3);
+
+			}
+		}
+	}
+	//get_rtc_time(&last_tm, NULL);
+	memmove(&last_tm, &yingxue_base.cache_time, sizeof(struct timeval));
+
+}
+
+
 //樱雪主页面定时任务
 bool MainLayerOnTimer(ITUWidget* widget, char* param)
 {
+	return true;
 	//1秒运行一次
 	static struct timeval last_tm;
 	//闪烁的时间
@@ -604,6 +1064,10 @@ bool MainLayerOnTimer(ITUWidget* widget, char* param)
 			if (wifi_base_g.online_state & 0x01){
 				t_widget = ituSceneFindWidget(&theScene, "Background15");
 				ituWidgetSetVisible(t_widget, true);
+			}
+			else{
+				t_widget = ituSceneFindWidget(&theScene, "Background15");
+				ituWidgetSetVisible(t_widget, false);
 			}
 
 			//Background34
@@ -698,10 +1162,13 @@ bool MainLayerOnTimer(ITUWidget* widget, char* param)
 	return true;
 }
 
+extern 	uint8_t buzzer_voice_state ;
+extern 	uint8_t	buzzer_voice_num;
+
 //开机画面定时器
 bool WelcomeOnTimer(ITUWidget* widget, char* param)
 {
-	ituLayerGoto(ituSceneFindWidget(&theScene, "yureshijianLayer"));
+	return true;
 	//是否已经动作
 	static unsigned char flag;
 	static unsigned char count;
@@ -731,6 +1198,7 @@ bool WelcomeOnTimer(ITUWidget* widget, char* param)
 		else{
 			//count += 1;
 			if (count == 0){
+				BUZZER_CLOSE(1);
 				count = 1;
 				sleep(2);
 				ioctl(ITP_DEVICE_BACKLIGHT, ITP_IOCTL_OFF, NULL);
@@ -742,6 +1210,7 @@ bool WelcomeOnTimer(ITUWidget* widget, char* param)
 			ioctl(ITP_DEVICE_BACKLIGHT, ITP_IOCTL_ON, NULL);
 			//开机
 			SEND_OPEN_CMD();
+			BUZZER_CLOSE(1);
 			sleep(2);
 			ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
 			flag = 1;

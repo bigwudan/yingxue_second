@@ -127,6 +127,14 @@ enum main_pthread_mq_state
 	SET_CHUCHANG //出厂设置
 };
 
+//当前显示的页面
+enum CURR_LAYER
+{
+	WELCOM, MAINLAYER, YURELAYER, YURESHIJIANLAYER, YURESHEZHILAYER, MOSHILAYER, CHUSHUI, LAYER1
+
+};
+
+
 //控件结构体
 //控制控件
 struct node_widget
@@ -182,6 +190,9 @@ struct yingxue_base_tag{
 	unsigned char ph_num;//[2][1]
 	unsigned char ne_num;//[2][4]
 	unsigned char huishui_temp_1;//[3][1] 回水温度 显示的回水温度
+	struct timeval cache_time; //每次轮询的缓存时间
+	//当前的时间
+	enum CURR_LAYER curr_layer;
 };
 
 
@@ -240,7 +251,37 @@ struct uart_data_tag{
 
 //串口
 #define UART_PORT       ITP_DEVICE_UART3
-#define UART_DEVICE     itpDeviceUart3	
+
+
+#define UART_PORT_WIFI       ITP_DEVICE_UART1
+
+//蜂鸣器
+#define BUZZER  50
+
+//打开蜂鸣器
+#define BUZZER_OPEN() do{ithGpioSet(BUZZER);buzzer_voice_num =  BUZZER_DURING;buzzer_voice_state = 1;}while(0);
+//关闭蜂鸣器
+#define BUZZER_CLOSE(ctl) do{ \
+								if(buzzer_voice_state == 1){\
+									if (ctl == 0){\
+										if ((buzzer_voice_num--) == 0){\
+											ITH_GPIO_CLEAR(BUZZER);\
+											buzzer_voice_state = 0;\
+										}\
+									}\
+									else{\
+										ITH_GPIO_CLEAR(BUZZER);\
+										buzzer_voice_state = 0;\
+										buzzer_voice_num = 0;\
+									}\
+								}\
+							}while(0);
+
+
+//蜂鸣器间隔时间
+#define BUZZER_DURING 3
+
+
 #define MAX_CHAIN_NUM 50
 
 //开机
@@ -253,6 +294,8 @@ struct uart_data_tag{
 //结束预热
 #define SEND_CLOSE_YURE_CMD() do{sendCmdToCtr(0x09, 0x00, 0x00, yingxue_base.huishui_temp, 0x00, STOP_YURE);}while(0)
 
+//获得缓存时间
+#define get_rtc_cache_time(now_t, NULL) memmove(now_t, &yingxue_base.cache_time, sizeof(struct timeval))
 
 
 //环形队列
@@ -278,6 +321,10 @@ void sendCmdToCtr(unsigned char cmd, unsigned char data_1, unsigned char data_2,
 //组合数据
 void processCmdToCtrData(unsigned char cmd, unsigned char data_1,
 	unsigned char data_2, unsigned char data_3, unsigned char data_4, unsigned char *dst);
+//欢迎页面轮询
+void polling_welcom();
+
+void polling_main();
 
 #define LOG_WRITE_UART(arr) do{\
 								for(int i=0; i<11;i++) \

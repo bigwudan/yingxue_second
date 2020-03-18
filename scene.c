@@ -84,6 +84,11 @@ mqd_t test_mq;
 
 extern void ScreenSetDoubleClick(void);
 //樱雪crc效验数组
+
+uint8_t buzzer_voice_num = 0; //最高位为状态位 剩下两位计数器
+uint8_t buzzer_voice_state = 0; //0未开启 1开启
+
+
 static const unsigned short crc16tab[256] = {
 	0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
 	0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
@@ -409,7 +414,7 @@ int get_rtc_time(struct  timeval *dst, unsigned char *zone)
 static void key_down_process()
 {
 	//最后一次的时间
-	get_rtc_time(&last_down_time, NULL);
+	get_rtc_cache_time(&last_down_time, NULL);
 	//更新处理标识
 	is_deal_over_time = 0;
 }
@@ -1708,7 +1713,7 @@ extern char is_shake;
 static void over_time_process()
 {
 	struct timeval now_t = { 0 };
-	get_rtc_time(&now_t, NULL);
+	get_rtc_cache_time(&now_t, NULL);
 	//已经处理过
 	if (is_deal_over_time == 1) return;
 	//如何当前的时间大于3秒
@@ -1898,6 +1903,14 @@ void process_frame(struct child_to_pthread_mq_tag *dst, const unsigned char *src
 	else if (idx == 0x03){
 		//[3][2] 回水温度
 		dst->huishui_temp = *(old + 2);
+		if (0xF0 == *(old + 6)){
+			dst->is_err = 1;
+			dst->err_no = 0xEC;
+	
+		}
+
+
+
 	}
 	
 }
@@ -1916,7 +1929,8 @@ static unsigned char win_test()
 		0xEA, 0x1B, 0x10, 0x4D, 0x00, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x79, 0x53,
 		0xEA, 0x1B, 0x11, 0x01, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x20, 0x21, 0x48, 0x35,
 		0xEA, 0x1B, 0x12, 0x02, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x30, 0x31, 0x05, 0x4B,
-		0xEA, 0x1B, 0x13, 0x03, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x40, 0x41, 0xBE, 0x5F,
+		//0xEA, 0x1B, 0x13, 0x03, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x40, 0x41, 0xBE, 0x5F,
+		0xEA, 0x1B, 0x13, 0x00, 0x00, 0x05, 0x40, 0x50, 0x00, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0xBE, 0x5F,
 	};
 	static int idx;
 	unsigned char res;
@@ -1966,6 +1980,7 @@ static void* UartFunc(void* arg)
 #else
 		len = read(UART_PORT, rece_buf, sizeof(rece_buf));
 #endif
+		
 		//如果串口有数据
 		if (len > 0){
 			//记录当前收到数据的时间
@@ -1978,8 +1993,8 @@ static void* UartFunc(void* arg)
 			//已经完成
 			if (uart_data.state == 2){
 
-				LOG_RECE_UART(uart_data.buf_data);
-				printf("\n\n");
+				//LOG_RECE_UART(uart_data.buf_data);
+				//printf("\n\n");
 
 				//打印结束
 				is_has = 0;
@@ -2020,7 +2035,7 @@ static void* UartFunc(void* arg)
 			//printf("rev=%lu,rev=%lu,", rev_time.tv_sec, rev_time.tv_sec);
 			//printf("no_time=%lu,no_time=%lu\r\n", nodata_time.tv_sec, nodata_time.tv_sec);
 			if ((nodata_time.tv_sec - rev_time.tv_sec) > 30){
-				printf("over time\n");
+				//printf("over time\n");
 				//发送错误信息
 				memset(&tm, 0, sizeof(struct timespec));
 				tm.tv_sec = 1;
@@ -2045,7 +2060,7 @@ static void run_time_task()
 {
 	struct tm *tm_t;
 	struct   timeval tm;
-	get_rtc_time(&tm, NULL);
+	get_rtc_cache_time(&tm, NULL);
 	tm_t = localtime(&tm.tv_sec);
 	struct child_to_pthread_mq_tag child_to_pthread_mq_tag;
 	int flag = 0;
@@ -2552,7 +2567,50 @@ mq_init()
 
 }
 
+//测试蜂鸣器
+void test_voice(){
+	printf("beg test\n");
+	int gpioPin = 50;
+	int i = 0;
+	itpInit();
+	//initial GPIO
+	ithGpioSetOut(gpioPin);
+	ithGpioSetMode(gpioPin, ITH_GPIO_MODE0);
+	//
+	while (1)
+	{
+		if (i++ & 0x1)
+		{
+			ithGpioClear(gpioPin);
+		}
+		else
+		{
+			ithGpioSet(gpioPin);
+		}
+		printf("current GPIO[%d] state=%x, index=%d\n", gpioPin, ithGpioGet(gpioPin), i);
+		usleep(1000 * 1000); //wait for 1 second
+	}
 
+}
+
+//初始化蜂鸣器
+void buzzer_voice()
+{
+	ithGpioSetOut(BUZZER);
+	ithGpioSetMode(BUZZER, ITH_GPIO_MODE0);
+}
+
+static void
+polling_layer()
+{
+	if (yingxue_base.curr_layer == WELCOM){
+		polling_welcom();
+	}
+	else if (yingxue_base.curr_layer == MAINLAYER){
+		polling_main();
+	}
+
+}
 
 int SceneRun(void)
 {
@@ -2569,17 +2627,40 @@ int SceneRun(void)
 	//樱雪初始化
 	//串口
 #ifndef _WIN32
-	itpRegisterDevice(UART_PORT, &UART_DEVICE);
-	ioctl(UART_PORT, ITP_IOCTL_INIT, NULL);
-	ioctl(UART_PORT, ITP_IOCTL_RESET, (void *)CFG_UART3_BAUDRATE);
+
 #endif
+	/*uint8_t test_buf[] = {0x11, 0x22, 0x33};
+	uint8_t test_read[17] = { 0 };
+	uint8_t test_len = 0;
+	//测试
+	while (1){
+		
+
+		test_len = write(UART_PORT_WIFI, test_buf, sizeof(test_buf));
+		printf("send test_len=%d\n", test_len);
+
+		test_len = read(UART_PORT_WIFI, test_read, sizeof(test_read));
+		if (test_len > 0){
+		
+			printf("beg start:");
+			for (int i = 0; i < test_len; i++){
+				printf(" 0x%02X ", test_read[i]);
+			}
+			printf("end \n");
+		}
+
+
+		sleep(2);
+	}*/
+
 
 
 	//消息队列
 	//初始化队列
 	mq_init();
 
-
+	//初始化蜂鸣器
+	buzzer_voice();
 
 
 	//收发串口线程
@@ -2597,6 +2678,10 @@ int SceneRun(void)
 	node_widget_init();
 	//基础数据初始化
 	yingxue_base_init();
+
+	//初始化wifi模块
+	yingxue_wifi_init();
+
 
     for (;;)
     {
@@ -2629,6 +2714,13 @@ int SceneRun(void)
 #endif     // FPS_ENABLE
 
 		//樱雪
+		//缓存时间
+		get_rtc_time(&yingxue_base.cache_time, NULL);
+
+		//进入页面轮询
+		polling_layer();
+
+		//任务超时
 		over_time_process();
 		//判断是否定时任务需要发送数据，并且接受子线程的数据
 		run_time_task();
@@ -2640,6 +2732,9 @@ int SceneRun(void)
 			}
 		}
 
+		//蜂鸣器关闭
+		BUZZER_CLOSE(0);
+		
 
 
 		//判断是否有错误代码
@@ -2683,6 +2778,7 @@ int SceneRun(void)
 		//wifi模块通讯
 		yingxue_wifi_task();
 
+
 #ifdef CFG_LCD_ENABLE
         while (SDL_PollEvent(&ev))
         {
@@ -2700,27 +2796,27 @@ int SceneRun(void)
 				//真实控制板按键
 					//case SDLK_UP:
 				case 1073741884:
-					if (curr_node_widget){
+					/*if (curr_node_widget){
 						curr_node_widget->updown_cb(curr_node_widget, 0);
+					}*/
+					if (curr_node_widget){
+						get_rtc_cache_time(&curtime, NULL);
 					}
-					
 					break;
 				case 1073741889:
-					//case SDLK_DOWN:
 					if (curr_node_widget){
 						curr_node_widget->updown_cb(curr_node_widget, 1);
 					}
-					
 					break;
 				//确定
 				case 1073741883:
 					if (curr_node_widget){
-						get_rtc_time(&curtime, NULL);
+						get_rtc_cache_time(&curtime, NULL);
 					}
 					break;
 				//关机
 				case 1073741885:
-					get_rtc_time(&curtime, NULL);
+					get_rtc_cache_time(&curtime, NULL);
 					break;
 				//键盘按键
                 case SDLK_UP:
@@ -2734,10 +2830,18 @@ int SceneRun(void)
 					
 					curr_node_widget->confirm_cb(curr_node_widget, 1);
 					break;
-
+               //关机
                 case SDLK_LEFT:
                     //ituSceneSendEvent(&theScene, EVENT_CUSTOM_KEY2, NULL);
-					printf("curr=%s\n", curr_node_widget->name);
+					//printf("curr=%s\n", curr_node_widget->name);
+					if (yingxue_base.run_state == 1){
+						yingxue_base.run_state = 2;
+					}
+					else{
+						yingxue_base.run_state = 1;
+					}
+					ituLayerGoto(ituSceneFindWidget(&theScene, "welcom"));
+
                     break;
 
                 case SDLK_RIGHT:
@@ -2860,9 +2964,26 @@ int SceneRun(void)
 				struct timeval t_time = { 0 };
 				switch (ev.key.keysym.sym)
 				{
+
+				//向上按键长按
+				case 1073741884:
+					BUZZER_OPEN();
+					LONG_PRESS_TIME(t_time, curtime, t_curr);
+					if ((yingxue_base.run_state == 2) && (t_curr >= 2)){
+						printf("send net\n");
+						yingxue_wifi_to_wifi(WIFI_CMD_NET, 0, 0);
+					}
+					else if (curr_node_widget){
+						curr_node_widget->updown_cb(curr_node_widget, 0);
+					}
+					break;
+				//向下按键长按
+				case 1073741889:
+					BUZZER_OPEN();
+					break;
 				//放开后是否长按
 				case 1073741883:
-
+					BUZZER_OPEN();
 					if (curr_node_widget){
 						LONG_PRESS_TIME(t_time, curtime, t_curr);
 						if (t_curr >= 2){
@@ -2876,6 +2997,7 @@ int SceneRun(void)
 					break;
 					//放开关机长按
 				case 1073741885:
+					BUZZER_OPEN();
 					LONG_PRESS_TIME(t_time, curtime, t_curr);
 					//长按
 					if (t_curr >= 2){
@@ -2889,6 +3011,7 @@ int SceneRun(void)
 					}
 					break;
 				case 1073741886:
+					BUZZER_OPEN();
 					//出厂设置
 					if (curr_node_widget){
 						ituLayerGoto(ituSceneFindWidget(&theScene, "Layer1"));
