@@ -512,11 +512,11 @@ yingxue_wifi_senduart(struct wifi_uart_mq_tag *wifi_uart_mq)
 {
 	int len = 0;
 #ifdef _WIN32
-	printf(" time=%d to wifi:", time(NULL));
+	/*printf(" time=%d to wifi:", time(NULL));
 	for (int i = 0; i < wifi_uart_mq->len; i++){
 		printf("0x%02X ", wifi_uart_mq->data[i]);
 	}
-	printf("\r\n");
+	printf("\r\n");*/
 
 
 #else

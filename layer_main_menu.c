@@ -116,8 +116,9 @@ static void MainLayer_init()
 	ituWidgetSetVisible(t_widget, false);
 	//默认选中中间一个边框
 	curr_node_widget = &mainlayer_1;
+	//默认去掉选中框，只有在点击的时候才出现
 	t_widget = ituSceneFindWidget(&theScene, curr_node_widget->focus_back_name);
-	ituWidgetSetVisible(t_widget, true);
+	ituWidgetSetVisible(t_widget, false);
 	//初始化状态
 	yingxue_base.adjust_temp_state = 0;
 	is_shake = 0;
@@ -807,7 +808,7 @@ polling_welcom()
 			get_rtc_cache_time(&rec_time, NULL);
 			flag = 3;
 		}
-		else if(3 == flag){
+		else if (3 == flag){
 			if (yingxue_base.cache_time.tv_sec >= rec_time.tv_sec + 2){
 				printf("open close\n");
 				ioctl(ITP_DEVICE_BACKLIGHT, ITP_IOCTL_OFF, NULL);
@@ -826,7 +827,7 @@ polling_welcom()
 			get_rtc_cache_time(&rec_time, NULL);
 			flag = 5;//关机中
 		}
-		else if(5 == flag){
+		else if (5 == flag){
 			if (yingxue_base.cache_time.tv_sec >= rec_time.tv_sec + 2){
 				printf("close close\n");
 				ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
@@ -891,6 +892,8 @@ polling_main()
 	}
 	else{
 		if (yingxue_base.adjust_temp_state == 0 || yingxue_base.adjust_temp_state == 3){
+			//进入上下调整状态，停止闪烁
+			is_shake = 0;
 			//显示出水温度
 			sprintf(t_buf, "%d", yingxue_base.chushui_temp);
 			t_widget = ituSceneFindWidget(&theScene, "Text17");
@@ -999,6 +1002,62 @@ polling_main()
 
 }
 
+//设置出厂轮询
+void polling_layer1()
+{
+	ITUWidget *t_widget = NULL;
+	char t_buf[10] = { 0 };
+	//水流
+	if (yingxue_base.state_show & 0x01){
+		//显示
+		t_widget = ituSceneFindWidget(&theScene, "Background99");
+		ituWidgetSetVisible(t_widget, true);
+
+	}
+	else{
+		//不显示
+		t_widget = ituSceneFindWidget(&theScene, "Background99");
+		ituWidgetSetVisible(t_widget, false);
+	}
+
+	//Background35
+	if (yingxue_base.state_show & 0x04){
+		//显示
+		t_widget = ituSceneFindWidget(&theScene, "Background101");
+		ituWidgetSetVisible(t_widget, true);
+
+	}
+	else{
+		//不显示
+		t_widget = ituSceneFindWidget(&theScene, "Background101");
+		ituWidgetSetVisible(t_widget, false);
+	}
+
+	//Background36
+	if (yingxue_base.state_show & 0x02){
+		//显示
+		t_widget = ituSceneFindWidget(&theScene, "Background103");
+		ituWidgetSetVisible(t_widget, true);
+
+	}
+	else{
+		//不显示
+		t_widget = ituSceneFindWidget(&theScene, "Background103");
+		ituWidgetSetVisible(t_widget, false);
+	}
+
+	//出水温度
+	sprintf(t_buf, "%02d", yingxue_base.chushui_temp);
+	t_widget = ituSceneFindWidget(&theScene, "Text94");
+	ituTextSetString(t_widget, t_buf);
+
+	//风机转速
+	sprintf(t_buf, "%02d", yingxue_base.wind_rate);
+	t_widget = ituSceneFindWidget(&theScene, "Text96");
+	ituTextSetString(t_widget, t_buf);
+	return;
+
+}
 
 //樱雪主页面定时任务
 bool MainLayerOnTimer(ITUWidget* widget, char* param)

@@ -326,6 +326,9 @@ void polling_welcom();
 
 void polling_main();
 
+//设置出厂轮询
+void polling_layer1();
+
 #define LOG_WRITE_UART(arr) do{\
 								for(int i=0; i<11;i++) \
 									printf("%02X ", arr[i]);\
