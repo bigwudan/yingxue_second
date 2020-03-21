@@ -495,22 +495,8 @@ static void lock_widget_up_down(struct node_widget *widget, unsigned char state)
 		}
 	}
 	else if (style == CHUSHUI_TEMP){
-		//35-50
-		if (yingxue_base.select_set_moshi_mode == 1 && (t_num < 35 || t_num > 50)){
-			return;
-		}
-		else if (yingxue_base.select_set_moshi_mode == 2 && (t_num < 35 || t_num > 65)){
-			return;
-		}
-		else if (yingxue_base.select_set_moshi_mode == 3 && (t_num < 0 || t_num > 42)){
-			return;
-		}
-		else if (yingxue_base.select_set_moshi_mode == 4 && (t_num < 0 || t_num > 38)){
-			return;
-		}
-
-
-	
+		//设置温度 模式设置	4	模式设置	设置温度	定升设定
+		sendCmdToCtr(0x04, 0x00, t_num, 0x00, 0x00, SET_TEMP);
 	}
 
 	sprintf(t_buf, "%d", t_num);
@@ -1017,7 +1003,7 @@ static void chushui_widget_confirm_cb(struct node_widget *widget, unsigned char 
 	ITUWidget *t_widget = NULL;
 	char *t_buf;
 	int num = 0;
-	t_widget = ituSceneFindWidget(&theScene, "moshiLayer");
+	t_widget = ituSceneFindWidget(&theScene, "MainLayer");
 	if (strcmp(widget->name, "chushui_BackgroundButton73") == 0){
 		ituLayerGoto((ITULayer *)t_widget);
 	}
@@ -1038,25 +1024,6 @@ static void chushui_widget_confirm_cb(struct node_widget *widget, unsigned char 
 	}
 	//点击确认，后确定
 	else if (strcmp(widget->name, "chushui_BackgroundButton1") == 0){
-		//Text38
-		t_widget = ituSceneFindWidget(&theScene, "Text38");
-		t_buf = ituTextGetString((ITUText*)t_widget);
-		num = atoi(t_buf);
-		if (yingxue_base.select_set_moshi_mode > 0){
-			if (yingxue_base.select_set_moshi_mode == 1){
-				yingxue_base.normal_moshi.temp = num;
-			}
-			else if (yingxue_base.select_set_moshi_mode == 2){
-				yingxue_base.super_moshi.temp = num;
-			}
-			else if (yingxue_base.select_set_moshi_mode == 3){
-				yingxue_base.eco_moshi.temp = num;
-			}
-			else if (yingxue_base.select_set_moshi_mode == 4){
-				yingxue_base.fruit_moshi.temp = num;
-			}
-		}
-		t_widget = ituSceneFindWidget(&theScene, "moshiLayer");
 		ituLayerGoto((ITULayer *)t_widget);
 	}
 
@@ -1315,10 +1282,10 @@ static void yingxue_base_init()
 {
 	memset(&yingxue_base, 0, sizeof(struct yingxue_base_tag));
 
-	yingxue_base.normal_moshi.temp = 37;
-	yingxue_base.super_moshi.temp = 36;
-	yingxue_base.eco_moshi.temp = 35;
-	yingxue_base.fruit_moshi.temp = 34;
+	yingxue_base.normal_moshi.temp = 45;
+	yingxue_base.super_moshi.temp = 60;
+	yingxue_base.eco_moshi.temp = 40;
+	yingxue_base.fruit_moshi.temp = 38;
 	yingxue_base.shezhi_temp = 35;
 	yingxue_base.is_err = 0;
 
@@ -1646,7 +1613,7 @@ static void node_widget_init()
 	moshiLayer_1.name = "moshi_BackgroundButton10";
 	moshiLayer_1.confirm_cb = moshi_widget_confirm_cb;
 	moshiLayer_1.updown_cb = moshi_up_down_cb;
-	moshiLayer_1.long_press_cb = moshi_widget_longpress_cb;
+	//moshiLayer_1.long_press_cb = moshi_widget_longpress_cb;
 
 	moshiLayer_2.up = &moshiLayer_1;
 	moshiLayer_2.down = &moshiLayer_3;
@@ -1654,7 +1621,7 @@ static void node_widget_init()
 	moshiLayer_2.name = "moshi_BackgroundButton11";
 	moshiLayer_2.confirm_cb = moshi_widget_confirm_cb;
 	moshiLayer_2.updown_cb = moshi_up_down_cb;
-	moshiLayer_2.long_press_cb = moshi_widget_longpress_cb;
+	//moshiLayer_2.long_press_cb = moshi_widget_longpress_cb;
 
 	moshiLayer_3.up = &moshiLayer_2;
 	moshiLayer_3.down = &moshiLayer_4;
@@ -1662,7 +1629,7 @@ static void node_widget_init()
 	moshiLayer_3.name = "moshi_BackgroundButton12";
 	moshiLayer_3.confirm_cb = moshi_widget_confirm_cb;
 	moshiLayer_3.updown_cb = moshi_up_down_cb;
-	moshiLayer_3.long_press_cb = moshi_widget_longpress_cb;
+	//moshiLayer_3.long_press_cb = moshi_widget_longpress_cb;
 
 	moshiLayer_4.up = &moshiLayer_3;
 	moshiLayer_4.down = NULL;
@@ -1670,7 +1637,7 @@ static void node_widget_init()
 	moshiLayer_4.name = "moshi_BackgroundButton13";
 	moshiLayer_4.confirm_cb = moshi_widget_confirm_cb;
 	moshiLayer_4.updown_cb = moshi_up_down_cb;
-	moshiLayer_4.long_press_cb = moshi_widget_longpress_cb;
+	//moshiLayer_4.long_press_cb = moshi_widget_longpress_cb;
 
 	//出水
 	chushui_0.up = NULL;
