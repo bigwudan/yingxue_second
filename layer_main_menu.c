@@ -766,6 +766,9 @@ bool YX_MenuOnEnter(ITUWidget* widget, char* param)
 		yingxue_base.curr_layer = LAYER1;
 		Layer1();
 	}
+	else{
+		yingxue_base.curr_layer = ERRORLAYER;
+	}
 	return true;
 
 }
@@ -1059,6 +1062,15 @@ void polling_layer1()
 
 }
 
+//错误轮询
+void polling_err()
+{
+	if (yingxue_base.is_err == 0){
+		ituLayerGoto(ituSceneFindWidget(&theScene, "MainLayer"));
+	}
+}
+
+
 //樱雪主页面定时任务
 bool MainLayerOnTimer(ITUWidget* widget, char* param)
 {
@@ -1281,6 +1293,7 @@ bool WelcomeOnTimer(ITUWidget* widget, char* param)
 //ERROnTimer
 bool ERROnTimer(ITUWidget* widget, char* param)
 {
+	return true;
 	sleep(2);
 	if (yingxue_base.is_err == 0){
 		printf("err =0\r\n");
