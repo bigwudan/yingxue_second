@@ -9,7 +9,7 @@
 #define MAX_FRAME_NUM 255
 
 //回复命令成功
-#define BACK_COMMAND_SUCCESS(COMMADN_ID, STATE) yingxue_wifi_to_wifi(WIFI_CMD_STATE_UP, COMMADN_ID, STATE)
+#define BACK_COMMAND_SUCCESS(COMMADN_ID, STATE) yingxue_wifi_to_wifi(WIFI_CMD_STATE_CTR, COMMADN_ID, STATE)
 
 
 
@@ -81,7 +81,8 @@ enum wifi_command_state
 	WIFI_CMD_STATE_QUERY = 0x04, //状态查询
 	WIFI_CMD_STATE_CTR = 0x07, //状态控制 
 	WIFI_CMD_STATE_ERR = 0x09, //故障上报 
-	WIFI_CMD_STATE_OK = 0x00 //接收确认（Ack） 
+	WIFI_CMD_STATE_OK = 0x00, //接收确认（Ack） 
+	WIFI_CMD_STATE_TIME = 0x0b
 };
 
 //WiFi串口发送数据

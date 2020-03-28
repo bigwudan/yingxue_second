@@ -159,11 +159,11 @@ struct moshi_data{
 
 //樱雪基础数据
 struct yingxue_base_tag{
-	unsigned char adjust_temp_state; // 0调整温度状态 1正在调整 2闪烁 3解除锁定，可以上下移动
+	unsigned char adjust_temp_state; // 0默认状态，没有闪烁,但是可以上下调整温度，触发后进入状态1， 1闪烁中，可以上下调整 2闪烁关闭开始 3闪烁关闭中，闪烁一直 4解除锁定，可以上下移动
 	unsigned char shezhi_temp; //设置温度
 	unsigned char run_state; //0第一次上电 1开机 2关机
 	unsigned char state_show;//第0位 有水  第1位 风机 第2位 火焰 第3位 风压
-	unsigned char shizhe_temp;//设置温度
+	//unsigned char shizhe_temp;//设置温度
 	unsigned char chushui_temp;//出水温度
 	unsigned char jinshui_temp;//进水温度
 	unsigned char huishui_temp; //回水温度 ,预热设置回差
@@ -189,10 +189,20 @@ struct yingxue_base_tag{
 	unsigned char dh_num;//[2][3]
 	unsigned char ph_num;//[2][1]
 	unsigned char ne_num;//[2][4]
+
+	
+	unsigned char pl_num;//[2][2]
+
+	
+	unsigned char pwm_num;//[3][4]
+
+
 	unsigned char huishui_temp_1;//[3][1] 回水温度 显示的回水温度
 	struct timeval cache_time; //每次轮询的缓存时间
 	//当前的时间
 	enum CURR_LAYER curr_layer;
+	//工厂设置模式数据
+	unsigned char set_factory_data[6][10];  //0 pa 1 dh 2 ph 3 fy 4 pl 5 fd 6 dh(pwm) 7 hs 8 hi 9 ed
 };
 
 
@@ -235,6 +245,13 @@ struct child_to_pthread_mq_tag{
 	unsigned char ph_num;
 	//[2][4]
 	unsigned char ne_num;
+
+	//[2][2]
+	unsigned char pl_num;
+
+	//[3][4]
+	unsigned char pwm_num;
+
 	//[3][1] 回水温度
 	unsigned char huishui_temp;
 };
@@ -281,6 +298,8 @@ struct uart_data_tag{
 //蜂鸣器间隔时间
 #define BUZZER_DURING 3
 
+//最大长按时间
+#define LONG_TIME_COUNT_MAX 5
 
 #define MAX_CHAIN_NUM 50
 
@@ -325,6 +344,9 @@ void processCmdToCtrData(unsigned char cmd, unsigned char data_1,
 void polling_welcom();
 
 void polling_main();
+
+//设置时间并且加锁
+void set_time_lock(unsigned char hour, unsigned char min);
 
 //设置出厂轮询
 void polling_layer1();
