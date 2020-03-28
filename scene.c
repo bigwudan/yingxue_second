@@ -1307,7 +1307,7 @@ static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
 			//t_num = 0x01;
 			sendCmdToCtr(0x0A, t_num, 0, 0, 0, SET_CHUCHANG);
 		}
-		//暂时废弃
+		//dh
 		else if (strcmp(widget->name, "Text90") == 0){
 			t_widget = ituSceneFindWidget(&theScene, "Text90");
 			t_num = hextointchange(ituTextGetString((ITUText*)t_widget));
@@ -1320,7 +1320,7 @@ static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
 			sprintf(t_buf, "%02X", t_num);
 			ituTextSetString(t_widget, t_buf);
 
-			sendCmdToCtr(0x0B, t_num, 0, 0, 0, SET_CHUCHANG);
+			sendCmdToCtr(0x0D, t_num, 0, 0, 0, SET_CHUCHANG);
 		}
 		//PH
 		else if (strcmp(widget->name, "Text33") == 0){
@@ -1336,7 +1336,7 @@ static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
 			ituTextSetString(t_widget, t_buf);
 			sendCmdToCtr(0x0B, t_num, 0, 0, 0, SET_CHUCHANG);
 		}
-		//FY
+		//FY 放弃
 		else if (strcmp(widget->name, "Text82") == 0){
 			t_widget = ituSceneFindWidget(&theScene, "Text82");
 			t_num = hextointchange(ituTextGetString((ITUText*)t_widget));
@@ -1364,7 +1364,7 @@ static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
 			sendCmdToCtr(0x0C, t_num, 0, 0, 0, SET_CHUCHANG);
 
 		}
-		//空
+		//fd 设置温度
 		else if (strcmp(widget->name, "Text80") == 0){
 			t_widget = ituSceneFindWidget(&theScene, "Text80");
 			t_num = hextointchange(ituTextGetString((ITUText*)t_widget));
@@ -1374,10 +1374,13 @@ static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
 			else{
 				t_num = t_num - 1;
 			}
+			yingxue_base.shezhi_temp = t_num;
 			sprintf(t_buf, "%02X", t_num);
 			ituTextSetString(t_widget, t_buf);
+			//设置温度 模式设置	4	模式设置	设置温度	定升设定
+			sendCmdToCtr(0x04, 0x00, t_num, 0x00, 0x00, SET_TEMP);
 		}
-		//DH
+		//DH pwm
 		else if (strcmp(widget->name, "Text45") == 0){
 			t_widget = ituSceneFindWidget(&theScene, "Text45");
 			t_num = hextointchange(ituTextGetString((ITUText*)t_widget));
@@ -1389,8 +1392,9 @@ static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
 			}
 			sprintf(t_buf, "%02X", t_num);
 			ituTextSetString(t_widget, t_buf);
-			sendCmdToCtr(0x0D, t_num, 0, 0, 0, SET_CHUCHANG);
+			sendCmdToCtr(0x24, t_num, 0, 0, 0, SET_CHUCHANG);
 		}
+		//HS 回水温度
 		else if (strcmp(widget->name, "Text73") == 0){
 			t_widget = ituSceneFindWidget(&theScene, "Text73");
 			t_num = hextointchange(ituTextGetString((ITUText*)t_widget));
@@ -1401,10 +1405,11 @@ static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
 				t_num = t_num - 1;
 			}
 			sprintf(t_buf, "%02X", t_num);
+			yingxue_base.huishui_temp = t_num;
 			ituTextSetString(t_widget, t_buf);
 		
 		}
-		//HI
+		//HI 时间设置
 		else if (strcmp(widget->name, "Text58") == 0){
 			t_widget = ituSceneFindWidget(&theScene, "Text58");
 			t_num = hextointchange(ituTextGetString((ITUText*)t_widget));
@@ -1418,6 +1423,7 @@ static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
 			ituTextSetString(t_widget, t_buf);
 			sendCmdToCtr(0x0E, t_num, 0, 0, 0, SET_CHUCHANG);
 		}
+		// ED qu
 		else if (strcmp(widget->name, "Text65") == 0){
 			t_widget = ituSceneFindWidget(&theScene, "Text65");
 			t_num = hextointchange(ituTextGetString((ITUText*)t_widget));
@@ -1431,8 +1437,6 @@ static void layer1_up_down_cb(struct node_widget *widget, unsigned char state)
 			ituTextSetString(t_widget, t_buf);
 			sendCmdToCtr(0x15, t_num, 0, 0, 0, SET_CHUCHANG);
 		}
-
-
 	}
 	else{
 		if (state == 0){
