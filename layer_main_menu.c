@@ -1066,6 +1066,7 @@ void polling_layer1()
 {
 	ITUWidget *t_widget = NULL;
 	char t_buf[10] = { 0 };
+	unsigned char set_num = 0;
 	//水流
 	if (yingxue_base.state_show & 0x01){
 		//显示
@@ -1114,6 +1115,92 @@ void polling_layer1()
 	sprintf(t_buf, "%02d", yingxue_base.wind_rate);
 	t_widget = ituSceneFindWidget(&theScene, "Text96");
 	ituTextSetString(t_widget, t_buf);
+
+
+
+	//显示数据
+
+	//pa
+	if (layer1_6.state == 0){
+		set_num = yingxue_base.fa_num;
+		sprintf(t_buf, "%02X", set_num);
+		t_widget = ituSceneFindWidget(&theScene, "Text22");
+		ituTextSetString(t_widget, t_buf);
+	}
+
+	//dh
+	if (layer1_7.state == 0){
+		set_num = yingxue_base.dh_num;
+		sprintf(t_buf, "%02X", set_num);
+		t_widget = ituSceneFindWidget(&theScene, "Text90");
+		ituTextSetString(t_widget, t_buf);
+	}
+
+
+
+	//ph
+	if (layer1_8.state == 0){
+		set_num = yingxue_base.ph_num;
+		sprintf(t_buf, "%02X", set_num);
+		t_widget = ituSceneFindWidget(&theScene, "Text33");
+		ituTextSetString(t_widget, t_buf);
+
+	}
+
+	//fy 取消
+	t_widget = ituSceneFindWidget(&theScene, "Text82");
+	ituTextSetString(t_widget, "00");
+
+	//pl
+	if (layer1_10.state == 0){
+		set_num = yingxue_base.pl_num;
+		sprintf(t_buf, "%02X", set_num);
+		t_widget = ituSceneFindWidget(&theScene, "Text39");
+		ituTextSetString(t_widget, t_buf);
+	
+	}
+
+
+
+	//Fd对应设置温度
+	if (layer1_11.state == 0){
+		set_num = yingxue_base.shezhi_temp;
+		sprintf(t_buf, "%02d", set_num);
+		t_widget = ituSceneFindWidget(&theScene, "Text80");
+		ituTextSetString(t_widget, t_buf);
+	
+	}
+
+
+	//dh pwm
+	if (layer1_12.state == 0){
+		set_num = yingxue_base.pwm_num;
+		sprintf(t_buf, "%02X", set_num);
+		t_widget = ituSceneFindWidget(&theScene, "Text45");
+		ituTextSetString(t_widget, t_buf);
+	}
+
+
+	//hs 回水温度
+	if (layer1_13.state == 0){
+		sprintf(t_buf, "%02X", yingxue_base.huishui_temp);
+		t_widget = ituSceneFindWidget(&theScene, "Text73");
+		ituTextSetString(t_widget, t_buf);
+	}
+
+
+	//hi
+	if (layer1_14.state == 0){
+		set_num = yingxue_base.ne_num;
+		sprintf(t_buf, "%02X", set_num);
+
+		t_widget = ituSceneFindWidget(&theScene, "Text58");
+		ituTextSetString(t_widget, t_buf);
+	}
+
+
+
+
 	return;
 
 }
